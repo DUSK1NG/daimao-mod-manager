@@ -1,7 +1,7 @@
 param(
     [string]$Dotnet = 'dotnet',
     [string]$SevenZipDirectory = 'C:\Program Files\7-Zip',
-    [string]$OutputDirectory = (Join-Path $PSScriptRoot '..\artifacts')
+    [string]$OutputDirectory = (Join-Path $PSScriptRoot '..\artifacts\release')
 )
 
 $ErrorActionPreference = 'Stop'
@@ -18,9 +18,13 @@ foreach ($file in @('7z.exe', '7z.dll', 'License.txt')) {
     }
 }
 New-Item -ItemType Directory -Path $publishRoot, $packageRoot -Force | Out-Null
-& $Dotnet publish (Join-Path $projectRoot 'src\HunterModManager.App\HunterModManager.App.csproj') -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=false -o $publishRoot
+& $Dotnet publish (Join-Path $projectRoot 'src\HunterModManager.Wpf\HunterModManager.Wpf.csproj') -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:PublishTrimmed=false -o $publishRoot
 if ($LASTEXITCODE -ne 0) { throw "dotnet publish failed: $LASTEXITCODE" }
-Copy-Item -LiteralPath (Join-Path $publishRoot 'HunterModManager.App.exe') -Destination $packageRoot
+$extraFiles = @(Get-ChildItem -LiteralPath $publishRoot -File -Recurse | Where-Object {
+    $_.Extension -ne '.pdb' -and $_.FullName -ne (Join-Path $publishRoot 'HunterModManager.Wpf.exe')
+})
+if ($extraFiles.Count -ne 0) { throw "Single-file publish left required files outside EXE: $($extraFiles.Name -join ', ')" }
+Copy-Item -LiteralPath (Join-Path $publishRoot 'HunterModManager.Wpf.exe') -Destination (Join-Path $packageRoot 'HunterModManager.exe')
 New-Item -ItemType Directory -Path (Join-Path $packageRoot 'tools') -Force | Out-Null
 Copy-Item -LiteralPath (Join-Path $SevenZipDirectory '7z.exe'), (Join-Path $SevenZipDirectory '7z.dll'), (Join-Path $SevenZipDirectory 'License.txt') -Destination (Join-Path $packageRoot 'tools')
 Copy-Item -LiteralPath (Join-Path $projectRoot 'README.md'), (Join-Path $projectRoot 'THIRD-PARTY-NOTICES.md') -Destination $packageRoot

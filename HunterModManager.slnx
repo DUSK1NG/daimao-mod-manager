@@ -2,9 +2,11 @@
   <Folder Name="/src/">
     <Project Path="src/HunterModManager.App/HunterModManager.App.csproj" />
     <Project Path="src/HunterModManager.Core/HunterModManager.Core.csproj" />
+    <Project Path="src/HunterModManager.Wpf/HunterModManager.Wpf.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/HunterModManager.LayoutTests/HunterModManager.LayoutTests.csproj" />
     <Project Path="tests/HunterModManager.Tests/HunterModManager.Tests.csproj" />
+    <Project Path="tests/HunterModManager.WpfLayoutTests/HunterModManager.WpfLayoutTests.csproj" />
   </Folder>
 </Solution>
