@@ -1,0 +1,15 @@
+# .NET / Visual Studio
+**/bin/
+**/obj/
+.vs/
+*.user
+*.suo
+
+# Build and publish outputs
+**/publish/
+artifacts/
+*.zip
+
+# Local application/test state
+*.log
+*.tmp
