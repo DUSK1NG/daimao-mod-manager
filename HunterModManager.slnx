@@ -4,6 +4,7 @@
     <Project Path="src/HunterModManager.Core/HunterModManager.Core.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/HunterModManager.LayoutTests/HunterModManager.LayoutTests.csproj" />
     <Project Path="tests/HunterModManager.Tests/HunterModManager.Tests.csproj" />
   </Folder>
 </Solution>

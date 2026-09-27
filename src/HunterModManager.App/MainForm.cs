@@ -19,10 +19,12 @@ public sealed class MainForm : Form
     private readonly FlowLayoutPanel prerequisitePanel = new() { Dock = DockStyle.Fill, FlowDirection = FlowDirection.TopDown, WrapContents = false, AutoScroll = true };
     private readonly TextBox logBox = new() { ReadOnly = true, Multiline = true, ScrollBars = ScrollBars.Vertical, Dock = DockStyle.Fill };
     private readonly ToolStripStatusLabel status = new() { Text = "就绪" };
+    private readonly SplitContainer split = new() { Width = 1060, SplitterDistance = 360, Dock = DockStyle.Fill };
     private PackageAnalysis? analysis;
     private string? archivePath;
     private bool syncing;
     private bool busy;
+    private bool changingSplit;
 
     private GameId Game => (GameId)Math.Max(0, gameBox.SelectedIndex);
     private string Root => rootBox.Text;
@@ -32,11 +34,15 @@ public sealed class MainForm : Form
         this.manager = manager;
         this.archives = archives;
         Text = "Hunter Mod Manager";
-        MinimumSize = new Size(900, 650);
+        AutoScaleMode = AutoScaleMode.Dpi;
+        MinimumSize = new Size(560, 430);
         Size = new Size(1100, 760);
         StartPosition = FormStartPosition.CenterScreen;
         Font = new Font("Microsoft YaHei UI", 9);
         BuildLayout();
+        Load += (_, _) => FitToWorkingArea();
+        DpiChanged += (_, _) => BeginInvoke((MethodInvoker)FitToWorkingArea);
+        split.SizeChanged += (_, _) => UpdateSplitLayout();
         foreach (var game in Enum.GetValues<GameId>()) gameBox.Items.Add(Games.Display(game));
         gameBox.SelectedIndexChanged += (_, _) => SelectGame();
         gameBox.SelectedIndex = 0;
@@ -46,6 +52,7 @@ public sealed class MainForm : Form
     private void BuildLayout()
     {
         var page = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 2, Padding = new Padding(10) };
+        page.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         page.RowStyles.Add(new RowStyle(SizeType.Absolute, 92));
         page.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         Controls.Add(page);
@@ -66,9 +73,9 @@ public sealed class MainForm : Form
         chooser.Controls.Add(browseRoot, 3, 1);
         page.Controls.Add(chooser, 0, 0);
 
-        var split = new SplitContainer { Width = 1060, Panel1MinSize = 270, Panel2MinSize = 460, SplitterDistance = 360, Dock = DockStyle.Fill };
         page.Controls.Add(split, 0, 1);
         var left = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 3, ColumnCount = 1 };
+        left.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         left.RowStyles.Add(new RowStyle(SizeType.Absolute, 34));
         left.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         left.RowStyles.Add(new RowStyle(SizeType.Absolute, 48));
@@ -90,7 +97,7 @@ public sealed class MainForm : Form
         var logTab = new TabPage("操作记录");
         tabs.TabPages.AddRange([importTab, prereqTab, logTab]);
         split.Panel2.Controls.Add(tabs);
-        var import = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 3, RowCount = 5, Padding = new Padding(8) };
+        var import = new TableLayoutPanel { Dock = DockStyle.Fill, AutoScroll = true, ColumnCount = 3, RowCount = 5, Padding = new Padding(8) };
         import.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 76));
         import.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         import.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 100));
@@ -128,6 +135,34 @@ public sealed class MainForm : Form
         var strip = new StatusStrip();
         strip.Items.Add(status);
         Controls.Add(strip);
+    }
+
+    private void FitToWorkingArea()
+    {
+        var area = Screen.FromControl(this).WorkingArea;
+        var scale = DeviceDpi / 96f;
+        MinimumSize = new Size(Math.Min((int)(560 * scale), area.Width), Math.Min((int)(430 * scale), area.Height));
+        Size = new Size(Math.Min(Width, area.Width), Math.Min(Height, area.Height));
+        Location = new Point(area.Left + (area.Width - Width) / 2, area.Top + (area.Height - Height) / 2);
+        UpdateSplitLayout();
+    }
+
+    private void UpdateSplitLayout()
+    {
+        if (changingSplit || split.Width <= 0 || split.Height <= 0) return;
+        var scale = DeviceDpi / 96f;
+        var desired = split.Width < 900 * scale ? Orientation.Horizontal : Orientation.Vertical;
+        if (split.Orientation == desired) return;
+        changingSplit = true;
+        try
+        {
+            split.Panel1MinSize = 0;
+            split.Panel2MinSize = 0;
+            split.Orientation = desired;
+            var available = desired == Orientation.Horizontal ? split.Height : split.Width;
+            split.SplitterDistance = Math.Min((int)((desired == Orientation.Horizontal ? 150 : 320) * scale), Math.Max(0, available - split.SplitterWidth));
+        }
+        finally { changingSplit = false; }
     }
 
     private void InstallDropTarget(Control control)
