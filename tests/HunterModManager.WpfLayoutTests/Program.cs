@@ -25,7 +25,7 @@ internal static class Program
             var window = new MainWindow
             {
                 DataContext = viewModel,
-                ShowInTaskbar = false,
+                ShowInTaskbar = demo,
                 Opacity = demo ? 1 : 0
             };
             if (demo)
@@ -63,6 +63,17 @@ internal static class Program
                 window.UpdateLayout();
                 var list = Find<Border>(window, x => x.Name == "ModPane");
                 Check(list.ActualWidth <= maxListWidth, $"{width}×{height}: Mod 列表过宽");
+                var mascots = Find<Border>(window, x => x.Name == "MascotStrip");
+                Check(mascots.IsVisible == (width >= 680 && height >= 650),
+                    $"{width}×{height}: 呆猫画像栏显示状态错误");
+                if (mascots.IsVisible)
+                {
+                    var bounds = mascots.TransformToAncestor(window).TransformBounds(new Rect(mascots.RenderSize));
+                    Check(bounds.Right <= window.ActualWidth && bounds.Bottom <= window.ActualHeight,
+                        $"{width}×{height}: 呆猫画像栏超出窗口");
+                    Check(Find<TextBlock>(mascots, x => x.Text == "老大，包给我瞅瞅？").IsVisible,
+                        $"{width}×{height}: 呆猫文案不可见");
+                }
                 CheckVisible(window, "更改目录");
                 CheckVisible(window, "选择压缩包");
                 CheckVisible(window, "导入所选版本  ·  默认停用");

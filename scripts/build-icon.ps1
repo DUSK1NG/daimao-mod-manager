@@ -1,35 +1,24 @@
-param(
-    [string]$Browser = 'C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe'
-)
-
 $ErrorActionPreference = 'Stop'
 $projectRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
+$pngPath = Join-Path $projectRoot 'src\HunterModManager.Wpf\Assets\daimao.png'
+$compactPath = Join-Path $projectRoot 'src\HunterModManager.Wpf\Assets\daimao-compact.png'
 $svgPath = Join-Path $projectRoot 'src\HunterModManager.Wpf\Assets\daimao.svg'
 $icoPath = Join-Path $projectRoot 'src\HunterModManager.Wpf\Assets\daimao.ico'
-$workRoot = Join-Path $projectRoot 'artifacts\icon-build'
-New-Item -ItemType Directory -Path $workRoot -Force | Out-Null
-
-if (-not (Test-Path -LiteralPath $Browser -PathType Leaf)) { throw "Browser not found: $Browser" }
-$htmlPath = Join-Path $workRoot 'preview.html'
-$pngPath = Join-Path $workRoot 'preview.png'
-$profilePath = Join-Path $workRoot 'browser-profile'
-$svg = Get-Content -LiteralPath $svgPath -Raw
-('<html><head><meta charset="utf-8"><style>html,body{margin:0;width:256px;height:256px;overflow:hidden}svg{display:block;width:256px;height:256px}</style></head><body>' + $svg + '</body></html>') |
-    Set-Content -LiteralPath $htmlPath -Encoding utf8
-$url = [Uri]::new($htmlPath).AbsoluteUri
-if (Test-Path -LiteralPath $pngPath) { Remove-Item -LiteralPath $pngPath }
-& $Browser '--headless=new' '--disable-gpu' '--hide-scrollbars' "--user-data-dir=$profilePath" "--screenshot=$pngPath" '--window-size=256,256' $url
-for ($attempt = 0; $attempt -lt 50 -and -not (Test-Path -LiteralPath $pngPath -PathType Leaf); $attempt++) {
-    Start-Sleep -Milliseconds 200
-}
-if (-not (Test-Path -LiteralPath $pngPath -PathType Leaf)) { throw 'SVG rendering failed' }
+if (-not (Test-Path -LiteralPath $pngPath -PathType Leaf)) { throw "Image missing: $pngPath" }
+if (-not (Test-Path -LiteralPath $compactPath -PathType Leaf)) { throw "Image missing: $compactPath" }
 
 Add-Type -AssemblyName System.Drawing
 $source = [Drawing.Bitmap]::new($pngPath)
+$compact = [Drawing.Bitmap]::new($compactPath)
 $sizes = @(16, 24, 32, 48, 64, 128, 256)
 $images = [Collections.Generic.List[byte[]]]::new()
 try {
-    if ($source.Width -ne 256 -or $source.Height -ne 256) { throw 'Expected a 256x256 SVG render' }
+    if ($source.Width -ne $source.Height) { throw 'Expected a square icon image' }
+    if ($compact.Width -ne $compact.Height) { throw 'Expected a square compact image' }
+    # The SVG wrapper keeps the earlier SVG deliverable visually identical to the generated bitmap.
+    $base64 = [Convert]::ToBase64String([IO.File]::ReadAllBytes($pngPath))
+    $svg = "<svg xmlns=`"http://www.w3.org/2000/svg`" xmlns:xlink=`"http://www.w3.org/1999/xlink`" viewBox=`"0 0 $($source.Width) $($source.Height)`" role=`"img`" aria-label=`"呆猫抱着 MOD.zip 文件夹`">`n  <image width=`"$($source.Width)`" height=`"$($source.Height)`" href=`"data:image/png;base64,$base64`"/>`n</svg>"
+    $svg | Set-Content -LiteralPath $svgPath -Encoding utf8
     foreach ($size in $sizes) {
         $bitmap = [Drawing.Bitmap]::new($size, $size)
         try {
@@ -37,7 +26,8 @@ try {
             try {
                 $graphics.InterpolationMode = [Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
                 $graphics.SmoothingMode = [Drawing.Drawing2D.SmoothingMode]::HighQuality
-                $graphics.DrawImage($source, [Drawing.Rectangle]::new(0, 0, $size, $size))
+                $frameSource = if ($size -le 48) { $compact } else { $source }
+                $graphics.DrawImage($frameSource, [Drawing.Rectangle]::new(0, 0, $size, $size))
             } finally { $graphics.Dispose() }
             $stream = [IO.MemoryStream]::new()
             try {
@@ -46,7 +36,7 @@ try {
             } finally { $stream.Dispose() }
         } finally { $bitmap.Dispose() }
     }
-} finally { $source.Dispose() }
+} finally { $source.Dispose(); $compact.Dispose() }
 
 $output = [IO.File]::Create($icoPath)
 try {

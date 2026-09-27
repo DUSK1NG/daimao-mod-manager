@@ -17,6 +17,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
@@ -79,7 +80,58 @@
             </Grid>
         </Border>
 
-        <Grid x:Name="WorkspaceGrid" Grid.Row="2" Margin="12,0">
+        <Border x:Name="MascotStrip" Grid.Row="2" Margin="16,10,16,0" Padding="7"
+                Background="{StaticResource BgMidBrush}" BorderBrush="{StaticResource BorderBrush}"
+                BorderThickness="1" CornerRadius="9">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0" Background="{StaticResource BgDeepBrush}" CornerRadius="6" Margin="3" Padding="6">
+                    <Grid>
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="74" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                        <Image Source="/HunterModManager.Wpf;component/Assets/daimao-sticker.png"
+                               Width="68" Height="68" Stretch="Uniform" Margin="0,0,6,0"
+                               AutomationProperties.Name="贴纸风格的呆猫画像" />
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                            <TextBlock Text="贴纸呆猫" FontSize="12" FontWeight="SemiBold"
+                                       Foreground="{StaticResource AccentBlueBrush}" />
+                            <TextBlock Text="老大，包给我瞅瞅？" FontSize="12" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
+                <Border Grid.Column="1" Background="{StaticResource BgDeepBrush}" CornerRadius="6" Margin="3" Padding="6">
+                    <Grid>
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="74" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                        <Image Source="/HunterModManager.Wpf;component/Assets/daimao-crayon.png"
+                               Width="68" Height="68" Stretch="Uniform" Margin="0,0,6,0"
+                               AutomationProperties.Name="蜡笔风格的呆猫画像" />
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                            <TextBlock Text="蜡笔呆猫" FontSize="12" FontWeight="SemiBold"
+                                       Foreground="{StaticResource AccentBlueBrush}" />
+                            <TextBlock Text="脑袋空空，路径看清。" FontSize="12" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
+                <Border Grid.Column="2" Background="{StaticResource BgDeepBrush}" CornerRadius="6" Margin="3" Padding="6">
+                    <Grid>
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="74" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                        <Image Source="/HunterModManager.Wpf;component/Assets/daimao-pixel.png"
+                               Width="68" Height="68" Stretch="Uniform" Margin="0,0,6,0"
+                               AutomationProperties.Name="像素风格的呆猫画像" />
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                            <TextBlock Text="像素呆猫" FontSize="12" FontWeight="SemiBold"
+                                       Foreground="{StaticResource AccentBlueBrush}" />
+                            <TextBlock Text="老大，打勾我才搬！" FontSize="12" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
+
+        <Grid x:Name="WorkspaceGrid" Grid.Row="3" Margin="12,0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
@@ -180,7 +232,7 @@
                                 </Style>
                             </StackPanel.Style>
                             <TextBlock Text="尚无 Mod" FontSize="15" FontWeight="SemiBold" HorizontalAlignment="Center" />
-                            <TextBlock Text="从右侧导入压缩包后，在这里勾选启用。"
+                            <TextBlock Text="老大，从右侧导入压缩包，再打勾启用。"
                                        Style="{StaticResource SecondaryText}" TextAlignment="Center"
                                        TextWrapping="Wrap" Margin="0,8,0,0" />
                         </StackPanel>
@@ -200,7 +252,7 @@
                             <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                                 <StackPanel>
                                     <TextBlock Text="导入压缩包" Style="{StaticResource HeaderText}" />
-                                    <TextBlock Text="支持 ZIP、RAR、7Z；先核对文件路径，再导入。"
+                                    <TextBlock Text="ZIP、RAR、7Z 都可以；我先核对路径，再导入。"
                                                Style="{StaticResource SecondaryText}" Margin="0,4,0,14" />
                                     <TextBlock Text="压缩包" Style="{StaticResource SectionLabel}" Margin="0,0,0,6" />
                                     <Grid Margin="0,0,0,13">
@@ -221,7 +273,7 @@
                                             <TextBlock Text="↓" FontSize="29" FontWeight="Light"
                                                        Foreground="{StaticResource AccentBlueBrush}"
                                                        HorizontalAlignment="Center" />
-                                            <TextBlock Text="也可以将压缩包拖到窗口" HorizontalAlignment="Center" Margin="0,3,0,0" />
+                                            <TextBlock Text="老大，也可以把压缩包拖到窗口" HorizontalAlignment="Center" Margin="0,3,0,0" />
                                             <TextBlock Text="导入前会显示版本、目标路径与冲突"
                                                        Style="{StaticResource SecondaryText}" HorizontalAlignment="Center"
                                                        Margin="0,3,0,0" />
@@ -352,7 +404,7 @@
             </Border>
         </Grid>
 
-        <Border Grid.Row="3" Background="{StaticResource BgMidBrush}"
+        <Border Grid.Row="4" Background="{StaticResource BgMidBrush}"
                 BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0" Padding="20,9">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -366,7 +418,7 @@
             </Grid>
         </Border>
 
-        <Border Grid.RowSpan="4" Background="#B8141D22"
+        <Border Grid.RowSpan="5" Background="#B8141D22"
                 Visibility="{Binding IsBusy, Converter={StaticResource BoolVis}}">
             <Border Style="{StaticResource Card}" HorizontalAlignment="Center"
                     VerticalAlignment="Center" Padding="24,18">

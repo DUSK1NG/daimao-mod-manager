@@ -13,6 +13,7 @@ $publishRoot = Join-Path $workRoot 'publish'
 $packageRoot = Join-Path $workRoot 'DaiMaoModManager'
 $embeddedRoot = Join-Path $projectRoot 'artifacts\embedded-tools'
 $exeName = '呆猫mod manager.exe'
+& (Join-Path $projectRoot 'scripts\build-icon.ps1') | Out-Null
 
 foreach ($file in @('7z.exe', '7z.dll', 'License.txt')) {
     if (-not (Test-Path -LiteralPath (Join-Path $SevenZipDirectory $file) -PathType Leaf)) {
@@ -31,6 +32,8 @@ Copy-Item -LiteralPath (Join-Path $publishRoot 'HunterModManager.Wpf.exe') -Dest
 Copy-Item -LiteralPath (Join-Path $workRoot $exeName) -Destination (Join-Path $packageRoot $exeName)
 Copy-Item -LiteralPath (Join-Path $projectRoot 'src\HunterModManager.Wpf\Assets\daimao.svg') -Destination (Join-Path $workRoot 'daimao.svg')
 Copy-Item -LiteralPath (Join-Path $workRoot 'daimao.svg') -Destination $packageRoot
+Copy-Item -LiteralPath (Join-Path $projectRoot 'src\HunterModManager.Wpf\Assets\daimao.png') -Destination (Join-Path $workRoot 'daimao.png')
+Copy-Item -LiteralPath (Join-Path $workRoot 'daimao.png') -Destination $packageRoot
 Copy-Item -LiteralPath (Join-Path $projectRoot 'README.md'), (Join-Path $projectRoot 'THIRD-PARTY-NOTICES.md') -Destination $packageRoot
 
 $manifest = foreach ($file in (Get-ChildItem -LiteralPath $packageRoot -File -Recurse | Sort-Object FullName)) {

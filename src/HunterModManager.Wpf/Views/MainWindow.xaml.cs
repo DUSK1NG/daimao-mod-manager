@@ -43,6 +43,8 @@ public partial class MainWindow : Window
 
     private void UpdateWorkspaceLayout()
     {
+        MascotStrip.Visibility = ActualWidth >= 680 && ActualHeight >= 650
+            ? Visibility.Visible : Visibility.Collapsed;
         var compact = ActualWidth < 900;
         if (compact == wasCompact) return;
         wasCompact = compact;

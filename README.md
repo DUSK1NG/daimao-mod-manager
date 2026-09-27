@@ -1,6 +1,6 @@
 # 呆猫mod manager
 
-Windows x64 WPF 工具，用于预览、导入和管理 Steam 版《Monster Hunter: World》《Monster Hunter Rise》《Monster Hunter Wilds》的文件型 Mod。直接下载并运行 `呆猫mod manager.exe`；无需安装 .NET SDK 或 7-Zip。`daimao.svg` 是可编辑图标源文件，便携 ZIP 另附说明和校验清单。
+Windows x64 WPF 工具，用于预览、导入和管理 Steam 版《Monster Hunter: World》《Monster Hunter Rise》《Monster Hunter Wilds》的文件型 Mod。直接下载并运行 `呆猫mod manager.exe`；无需安装 .NET SDK 或 7-Zip。新版呆猫图标以生成的透明 `daimao.png` 为画面源，`daimao.svg` 内嵌该位图以保持外观一致，并非可编辑的矢量路径；便携 ZIP 另附说明和校验清单。
 
 ## 使用方法
 
@@ -15,6 +15,7 @@ Mod 包、原文件备份和状态存于 `%LOCALAPPDATA%\HunterModManager`。首
 ## 当前功能
 
 - 拖入或选择 ZIP、RAR、7Z 后分析压缩包，展示识别版本、目标路径、前置提示和阻止原因；支持手动映射无锚点包，也要求多版本包明确选择版本。
+- 主界面展示贴纸、蜡笔、像素三种呆猫画像与原创短句；小窗口自动收起画像栏，保留安装操作空间。文案参考呆猫表情包常见的“老大”称呼和呆萌语气，路径校验与风险提示仍按实际行为说明。
 - 导入默认停用。勾选启用、取消勾选停用；目标文件有其他已启用 Mod 时报告冲突，可选择在事务中切换。
 - 窄窗口缩小左侧列表宽度，右侧表单可滚动且导入按钮保持可见；启动时将窗体保持在屏幕可用区域内。
 - 支持明确识别的 `nativePC`、`natives`、REFramework 脚本/插件文件及受支持前置组件配方。无法安全确定安装内容时阻止导入。
@@ -30,6 +31,8 @@ Mod 包、原文件备份和状态存于 `%LOCALAPPDATA%\HunterModManager`。首
 | Wilds | REFramework 脚本/插件，以及满足 Loose File Loader 条件的 `natives` 散文件 | REFramework 从官方 GitHub 获取；Loose File Loader 需要在游戏内设置 |
 
 Rise 和 Wilds 的 PAK 仅识别和说明，不自动编号、安装或卸载。工具报告文件已部署不等于已经验证游戏加载成功。REFramework 官方入口：[nightly releases](https://github.com/praydog/REFramework-nightly/releases/)；文件选择遵循[官方 README](https://github.com/praydog/REFramework/blob/master/README.md)。需要下载官方 REFramework 时，当前网络连接须能访问 GitHub。
+
+呆猫形象参考[《崛起》“猫系列”外观](https://store.steampowered.com/app/2167453/Monster_Hunter_Rise__Kit_T_Palico_layered_armor_set/)与用户提供的截图；文案语气参考[呆猫表情包合集](https://www.bilibili.com/video/BV1tV4y1r7bd/)及[相关介绍](https://news.17173.com/content/02112025/172411044.shtml)。画像和界面短句重新创作，未打包网上的表情包原图。
 
 ## 数据保护
 
@@ -57,7 +60,7 @@ dotnet run --project tests/HunterModManager.WpfLayoutTests/HunterModManager.WpfL
 .\scripts\build-release.ps1 -Dotnet 'dotnet' -SevenZipDirectory 'C:\Program Files\7-Zip'
 ```
 
-`-Dotnet` 可填写 .NET 10 SDK `dotnet.exe` 的绝对路径。脚本要求指定的 7-Zip 目录含有 `7z.exe`、`7z.dll` 和 `License.txt`，将它们嵌入 EXE，并输出单独可下载的 EXE、SVG、便携 ZIP 与 SHA-256 校验文件。RAR 样本测试可通过 `HMM_RAR_FIXTURE` 环境变量指定本地 RAR 文件；未提供时该项跳过。
+`-Dotnet` 可填写 .NET 10 SDK `dotnet.exe` 的绝对路径。脚本要求指定的 7-Zip 目录含有 `7z.exe`、`7z.dll` 和 `License.txt`，将它们嵌入 EXE，并输出单独可下载的 EXE、PNG、SVG、便携 ZIP 与 SHA-256 校验文件。`scripts/build-icon.ps1` 从 PNG 重建 ICO 与 SVG；小尺寸 ICO 帧使用更紧凑的 `daimao-compact.png`。贴纸、蜡笔和像素画像位于 `src/HunterModManager.Wpf/Assets/`。RAR 样本测试可通过 `HMM_RAR_FIXTURE` 环境变量指定本地 RAR 文件；未提供时该项跳过。
 
 ## 第三方许可
 
