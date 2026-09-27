@@ -40,7 +40,7 @@ internal static class Program
         }
         catch (Exception ex)
         {
-            MessageBox.Show(ex.Message, "Hunter Mod Manager", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show(ex.Message, "呆猫mod manager", MessageBoxButton.OK, MessageBoxImage.Error);
             return 1;
         }
     }
@@ -81,6 +81,8 @@ internal static class Program
 
     internal static string FindSevenZip()
     {
+        var embedded = EmbeddedSevenZip.ExtractTo(DataRoot);
+        if (embedded is not null) return embedded;
         var bundled = Path.Combine(AppContext.BaseDirectory, "tools", "7z.exe");
         if (File.Exists(bundled)) return bundled;
         var local = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "7-Zip", "7z.exe");

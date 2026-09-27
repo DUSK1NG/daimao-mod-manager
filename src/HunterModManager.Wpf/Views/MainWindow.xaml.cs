@@ -66,7 +66,7 @@ public partial class MainWindow : Window
         }
         else
         {
-            MessageBox.Show("一次请拖入一个 ZIP、RAR 或 7Z 文件。", "Hunter Mod Manager",
+            MessageBox.Show("一次请拖入一个 ZIP、RAR 或 7Z 文件。", "呆猫mod manager",
                 MessageBoxButton.OK, MessageBoxImage.Warning);
         }
         e.Handled = true;

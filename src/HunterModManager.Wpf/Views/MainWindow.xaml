@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="clr-namespace:HunterModManager.Wpf.ViewModels"
         xmlns:conv="clr-namespace:HunterModManager.Wpf.Converters"
-        Title="Hunter Mod Manager" Width="1100" Height="760" MinWidth="640" MinHeight="520"
+        Title="呆猫mod manager" Icon="/HunterModManager.Wpf;component/Assets/daimao.ico" Width="1100" Height="760" MinWidth="640" MinHeight="520"
         WindowStartupLocation="CenterScreen" AllowDrop="True"
         Drop="Window_Drop" DragEnter="Window_DragEnter"
         Loaded="Window_Loaded" SizeChanged="Window_SizeChanged">
@@ -28,10 +28,13 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <StackPanel VerticalAlignment="Center">
-                    <TextBlock Text="HUNTER MOD MANAGER" FontSize="11" FontWeight="Bold"
-                               Foreground="{StaticResource AccentBlueBrush}" />
-                    <TextBlock Text="怪物猎人 Mod 管理器" FontSize="19" FontWeight="SemiBold" Margin="0,3,0,0" />
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Image Source="/HunterModManager.Wpf;component/Assets/daimao.ico" Width="38" Height="38" Margin="0,0,10,0" />
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="DAIMAO MOD MANAGER" FontSize="11" FontWeight="Bold"
+                                   Foreground="{StaticResource AccentBlueBrush}" />
+                        <TextBlock Text="呆猫mod manager" FontSize="19" FontWeight="SemiBold" Margin="0,3,0,0" />
+                    </StackPanel>
                 </StackPanel>
                 <Border Grid.Column="1" Background="{StaticResource BgDeepBrush}"
                         BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"

@@ -6,6 +6,14 @@
 
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml" />
+    <Resource Include="Assets\daimao.ico" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(EmbedSevenZip)' == 'true'">
+    <EmbeddedResource Include="..\..\artifacts\embedded-tools\7z.exe" LogicalName="HunterModManager.Tools.7z.exe" />
+    <EmbeddedResource Include="..\..\artifacts\embedded-tools\7z.dll" LogicalName="HunterModManager.Tools.7z.dll" />
+    <EmbeddedResource Include="..\..\artifacts\embedded-tools\License.txt" LogicalName="HunterModManager.Tools.License.txt" />
+    <EmbeddedResource Include="..\..\THIRD-PARTY-NOTICES.md" LogicalName="HunterModManager.Tools.THIRD-PARTY-NOTICES.md" />
   </ItemGroup>
 
   <PropertyGroup>
@@ -16,6 +24,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <StartupObject>HunterModManager.Wpf.Program</StartupObject>
     <EnableDefaultApplicationDefinition>false</EnableDefaultApplicationDefinition>
+    <ApplicationIcon>Assets\daimao.ico</ApplicationIcon>
+    <Title>呆猫mod manager</Title>
+    <Product>呆猫mod manager</Product>
+    <Description>怪物猎人 Mod 管理工具</Description>
   </PropertyGroup>
 
 </Project>

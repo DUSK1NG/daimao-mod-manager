@@ -477,6 +477,6 @@ public sealed class MainViewModel : ViewModelBase
     private void ShowError(string message)
     {
         SetStatus("错误：" + message);
-        MessageBox.Show(message, "Hunter Mod Manager", MessageBoxButton.OK, MessageBoxImage.Error);
+        MessageBox.Show(message, "呆猫mod manager", MessageBoxButton.OK, MessageBoxImage.Error);
     }
 }
