@@ -48,5 +48,7 @@ Compress-Archive -Path (Join-Path $packageRoot '*') -DestinationPath $zipPath -C
 ('{0}  {1}' -f (Get-FileHash -LiteralPath (Join-Path $workRoot $exeName) -Algorithm SHA256).Hash.ToLowerInvariant(), $exeName) |
     Set-Content -LiteralPath (Join-Path $workRoot ($exeName + '.sha256')) -Encoding utf8
 
-Write-Output (Join-Path $workRoot $exeName)
+& (Join-Path $PSScriptRoot 'set-current-release.ps1') -PackageDirectory $packageRoot | Out-Null
+
+Write-Output (Join-Path $projectRoot ('bin\' + $exeName))
 Write-Output $zipPath

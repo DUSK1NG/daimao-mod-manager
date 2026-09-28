@@ -6,6 +6,8 @@
 
 最新构建为 `artifacts/release/DaiMaoModManager-win-x64-20260928-184856/`，提供独立 EXE、便携 ZIP、图标和校验文件。10 个旧发布目录已移到 `artifacts/previous-releases/`；永久删除命令被自动审批拒绝，因此采用可恢复归档。
 
+根目录 `bin` 现为指向当前发布包 `DaiMaoModManager/` 的目录联接，统一启动入口为 `bin/呆猫mod manager.exe`。原 `bin/Release-Wpf` 已随整个旧 bin 归档到 `artifacts/previous-releases/legacy-root-bin-20260927/`；发布目录中遗留的旧 ZIP 和校验文件也已归档。`scripts/build-release.ps1` 在打包成功后调用 `scripts/set-current-release.ps1` 更新联接。先更新联接，再归档旧发布包；不要将实际发布文件夹当作可随意删除的缓存。
+
 GitHub 仓库：<https://github.com/DUSK1NG/daimao-mod-manager>。下载入口：<https://github.com/DUSK1NG/daimao-mod-manager/releases/latest>。发布后以远程 Release 的实际资产列表为准。
 
 ## 本次验证
@@ -15,6 +17,7 @@ GitHub 仓库：<https://github.com/DUSK1NG/daimao-mod-manager>。下载入口�
 - WPF 四种尺寸布局测试通过；整套 Release 构建 0 警告、0 错误。
 - 新 EXE 启动并正常退出；ZIP 完整性与包内文件 SHA-256 验证通过。
 - 实际应用状态文件在更新前后未变。测试没有向真实游戏目录部署文件。
+- 当前发布入口脚本通过语法、重复调用和切换目标验证；bin 与发布包内 EXE 的文件 ID 一致。此改动不改变 v0.1.0 的程序二进制。
 
 仍未验证游戏内加载、跨账户 UAC 以及人工拖拽交互。本机没有 Rise 安装，不能宣称三款游戏内效果已验证。
 

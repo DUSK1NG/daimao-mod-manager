@@ -9,6 +9,7 @@
 - GitHub：<https://github.com/DUSK1NG/daimao-mod-manager>
 - 最新下载：<https://github.com/DUSK1NG/daimao-mod-manager/releases/latest>
 - 本地发布目录：`artifacts/release/DaiMaoModManager-win-x64-20260928-184856/`
+- 固定启动入口：`bin/呆猫mod manager.exe`。根目录 bin 是指向当前发布包的目录联接，两个路径访问同一份文件；下次发布自动更新指向。
 - EXE：`呆猫mod manager.exe`
 - EXE SHA-256：`55bc386c50210900999ad0c94232c7a4b5b93d834eba9f7d133a80767b74060f`
 - ZIP SHA-256：`ec8ef5a80337bd75ecef3e799bf0c8b67ef4c645fe7f879ca4c2966d4a1de716`
@@ -19,6 +20,7 @@
 - ZIP、7Z、RAR 测试覆盖导入、启用及停用。新增真实多版本 ZIP 的各版本启停检查；样本通过环境变量指定，不进入源码仓库或发行包。
 - README 收短为下载、功能、使用方法和构建步骤。
 - 发布目录只保留最新版。10 个旧发布目录可恢复地移入 `artifacts/previous-releases/`，未永久删除；批量删除被自动审批拒绝，只返回 `blocked by policy`。
+- 旧根目录 bin 已归档到 `artifacts/previous-releases/legacy-root-bin-20260927/`，遗留的旧版 ZIP 和校验文件也已归档。源码项目内的 bin/obj 保持编译用途。
 
 ## 已验证
 
@@ -28,6 +30,7 @@
 - 新 EXE 启动后标题正确、主窗口有响应，并正常关闭。
 - ZIP 通过 7-Zip 完整性检查，包内 5 个文件与 SHA-256 清单一致。
 - 更新前后实际 Mod 状态文件哈希相同，4 个导入记录、2 个启用状态保留。
+- 发布入口更新脚本的语法、重复运行和目标切换检查通过；固定入口与发布包的 EXE 文件 ID 完全相同。此次目录整理不涉及程序二进制更新。
 
 测试均使用临时模拟目录；真实游戏目录只做过只读预览。没有完成游戏内加载、跨账户 UAC、人工拖拽交互验证，本机也未安装 Rise。
 
