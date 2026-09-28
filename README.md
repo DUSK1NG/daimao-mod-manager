@@ -4,7 +4,7 @@
 
 给 Windows 版《怪物猎人：世界》《怪物猎人：崛起》《怪物猎人：荒野》管理文件型 Mod。把 ZIP、RAR 或 7Z 拖进窗口，先看它会写到哪里，再决定是否启用。
 
-[下载最新版本](https://github.com/DUSK1NG/daimao-mod-manager/releases/latest) · Windows x64 · 解压 ZIP 后运行 `呆猫mod manager.exe`，或直接下载同名 EXE。无需另装 .NET 或 7-Zip。
+[下载最新版本](https://github.com/DUSK1NG/daimao-mod-manager/releases/latest) · Windows x64 · 解压 ZIP 后运行 `呆猫mod manager.exe`，也可直接下载独立 EXE。无需另装 .NET 或 7-Zip。
 
 ## 怎么用
 

@@ -11,7 +11,7 @@
 - 本地发布目录：`artifacts/release/DaiMaoModManager-win-x64-20260928-184856/`
 - EXE：`呆猫mod manager.exe`
 - EXE SHA-256：`55bc386c50210900999ad0c94232c7a4b5b93d834eba9f7d133a80767b74060f`
-- ZIP SHA-256：`0dc0f215bf3b6f29593eaaf3c321381b803ce35485b3132ced89eb667aa4871d`
+- ZIP SHA-256：`ec8ef5a80337bd75ecef3e799bf0c8b67ef4c645fe7f879ca4c2966d4a1de716`
 
 ## 本次改动
 
