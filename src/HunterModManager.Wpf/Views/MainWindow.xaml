@@ -284,7 +284,7 @@
                                             <RowDefinition Height="Auto" />
                                             <RowDefinition Height="Auto" />
                                         </Grid.RowDefinitions>
-                                        <TextBlock Text="安装版本" Style="{StaticResource SectionLabel}" Margin="0,0,0,6" />
+                                        <TextBlock Text="安装版本 · 点选其中一个后才能导入" Style="{StaticResource SectionLabel}" Margin="0,0,0,6" />
                                         <ListBox Grid.Row="1" ItemsSource="{Binding VariantNames}"
                                                  SelectedIndex="{Binding SelectedVariantIndex}"
                                                  MinHeight="40" MaxHeight="126"

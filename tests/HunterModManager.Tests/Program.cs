@@ -5,6 +5,7 @@ using HunterModManager.Core;
 
 var sevenZip = Environment.GetEnvironmentVariable("HMM_7ZIP") ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "7-Zip", "7z.exe");
 var rarFixture = Environment.GetEnvironmentVariable("HMM_RAR_FIXTURE");
+var multivariantFixture = Environment.GetEnvironmentVariable("HMM_MULTIVARIANT_FIXTURE");
 if ((args.Length == 3 || args.Length == 4) && args[0] == "--inspect" && Enum.TryParse<GameId>(args[1], true, out var inspectionGame))
 {
     var inspected = await new ArchiveService(sevenZip).AnalyzeAsync(args[2], inspectionGame);
@@ -29,7 +30,7 @@ try
     if (!File.Exists(sevenZip)) throw new FileNotFoundException("测试要求本机安装 7-Zip", sevenZip);
     var archiveService = new ArchiveService(sevenZip);
 
-    await Run("ZIP 与 7Z 内容分析", async () =>
+    await Run("ZIP 与 7Z 分析、导入及启停", async () =>
     {
         foreach (var extension in new[] { ".zip", ".7z" })
         {
@@ -38,6 +39,15 @@ try
             Check(analysis.Variants.Count == 1, $"{extension}: 应识别一个版本");
             Check(analysis.Variants[0].Files.Single().Target == "nativePC/plugins/mod.txt", $"{extension}: 目标路径应保留 nativePC 锚点");
             Check(analysis.Sha256.Length == 64, $"{extension}: 应计算 SHA-256");
+            var sandbox = Path.Combine(root, "deploy-" + extension.TrimStart('.'));
+            var game = CreateGame(sandbox, GameId.World);
+            var manager = new ModManager(Path.Combine(sandbox, "data"), archiveService);
+            var mod = await manager.ImportAsync(archive, GameId.World, game);
+            await manager.SetEnabledAsync(mod.Id, true);
+            var target = Path.Combine(game, "nativePC", "plugins", "mod.txt");
+            Check(File.ReadAllText(target) == "version-one", $"{extension}: 启用应部署包内文件");
+            await manager.SetEnabledAsync(mod.Id, false);
+            Check(!File.Exists(target), $"{extension}: 停用应撤回新增文件");
         }
     });
 
@@ -175,14 +185,45 @@ try
         }
     });
 
-    await Run("RAR 内容分析", async () =>
+    await Run("RAR 分析、导入及启停", async () =>
     {
         if (!File.Exists(rarFixture)) throw new SkipTestException("本机未找到 RAR 测试样本：" + rarFixture);
-        var archive = Path.Combine(root, "rar-fixture.rar");
+        var sandbox = Path.Combine(root, "rar-deploy");
+        var game = CreateGame(sandbox, GameId.World);
+        var archive = Path.Combine(sandbox, "rar-fixture.rar");
         File.Copy(rarFixture, archive);
         var analysis = await archiveService.AnalyzeAsync(archive, GameId.World);
         Check(analysis.Variants.Count > 0, "RAR 应识别至少一个 World 文件型版本");
         Check(analysis.Variants.SelectMany(v => v.Files).Any(f => f.Target.StartsWith("nativePC/", StringComparison.OrdinalIgnoreCase)), "RAR 应识别 nativePC 目标");
+        var variant = analysis.Variants.First(v => v.BlockedReason is null && v.Files.Count > 0);
+        var manager = new ModManager(Path.Combine(sandbox, "data"), archiveService);
+        var mod = await manager.ImportAsync(archive, GameId.World, game, variant.Name);
+        await manager.SetEnabledAsync(mod.Id, true);
+        Check(mod.Files.All(file => File.Exists(Path.Combine(game, file.Target.Replace('/', Path.DirectorySeparatorChar)))), "RAR 启用后应部署所选版本全部文件");
+        await manager.SetEnabledAsync(mod.Id, false);
+        Check(mod.Files.All(file => !File.Exists(Path.Combine(game, file.Target.Replace('/', Path.DirectorySeparatorChar)))), "RAR 停用后应撤回新增文件");
+    });
+
+    await Run("真实多版本 ZIP 导入与启停", async () =>
+    {
+        if (!File.Exists(multivariantFixture)) throw new SkipTestException("本机未找到多版本 ZIP 测试样本：" + multivariantFixture);
+        var sandbox = Path.Combine(root, "real-multivariant");
+        var game = CreateGame(sandbox, GameId.World);
+        var archive = Path.Combine(sandbox, "multivariant.zip");
+        File.Copy(multivariantFixture, archive);
+        var analysis = await archiveService.AnalyzeAsync(archive, GameId.World);
+        Check(analysis.Variants.Count >= 2, "应识别至少两个安装版本");
+        var manager = new ModManager(Path.Combine(sandbox, "data"), archiveService);
+        foreach (var variant in analysis.Variants)
+        {
+            Check(variant.BlockedReason is null && variant.Files.Count > 0, "版本应可导入且包含文件：" + variant.Name);
+            var mod = await manager.ImportAsync(archive, GameId.World, game, variant.Name);
+            Check(!mod.Enabled && mod.Files.Count == variant.Files.Count, "导入后应保持停用并只记录所选版本");
+            await manager.SetEnabledAsync(mod.Id, true);
+            Check(mod.Files.All(file => File.Exists(Path.Combine(game, file.Target.Replace('/', Path.DirectorySeparatorChar)))), "启用后全部目标文件应存在：" + variant.Name);
+            await manager.SetEnabledAsync(mod.Id, false);
+            Check(mod.Files.All(file => !File.Exists(Path.Combine(game, file.Target.Replace('/', Path.DirectorySeparatorChar)))), "停用后应撤回新增文件：" + variant.Name);
+        }
     });
 
     await Run("启用和停用恢复既有文件", async () =>
