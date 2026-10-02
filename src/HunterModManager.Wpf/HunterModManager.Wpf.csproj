@@ -29,7 +29,8 @@
     <Title>呆猫mod manager</Title>
     <Product>呆猫mod manager</Product>
     <Description>怪物猎人 Mod 管理工具</Description>
-    <Version>0.1.1</Version>
+    <Version>0.1.2</Version>
+    <SatelliteResourceLanguages>zh-Hans;zh-Hant</SatelliteResourceLanguages>
   </PropertyGroup>
 
 </Project>

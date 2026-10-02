@@ -11,3 +11,9 @@ unRAR 限制规定：unRAR 源码不得用于重新实现专有的 RAR 压缩算
 源码获取：[7-Zip 官方下载页](https://www.7-zip.org/download.html)（页面提供 7-Zip 源码下载）。许可原文：[7-Zip License.txt](https://www.7-zip.org/license.txt)。发布时应随 `License.txt` 一并提供适用于 LGPL 的源码或源码获取信息，并保留适用的 BSD 声明。
 
 本项目不会把 7-Zip 代码静态链接进应用；归档功能通过从 EXE 资源解压的 `7z.exe` 进程和 `7z.dll` 实现。此说明是发行记录，不替代针对实际二进制、源码版本及发行方式的许可核查。
+
+## NSIS 3.11
+
+自解压便携包由 NSIS 3.11 生成，使用 LZMA 压缩。NSIS 主体采用 zlib/libpng 许可；所用 LZMA 模块采用 Common Public License 1.0。原版许可随包提供为 `LICENSE-NSIS.txt`。
+
+构建工具取自 [NSIS 官方发行文件](https://sourceforge.net/projects/nsis/files/NSIS%203/3.11/nsis-3.11.zip/download)，对应源码可从 [NSIS 官方源码仓库 v311](https://github.com/nsis-dev/nsis/tree/v311) 获得。项目没有修改 NSIS 或压缩模块。

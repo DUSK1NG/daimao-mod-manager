@@ -74,7 +74,7 @@ internal static class Program
 
             foreach (var (width, height, maxListWidth) in new[]
                      {
-                         (1100d, 760d, 300d), (800d, 760d, 220d),
+                         (1100d, 760d, 300d), (960d, 720d, 300d), (800d, 760d, 220d),
                          (700d, 720d, 220d), (640d, 540d, 220d)
                      })
             {
@@ -98,11 +98,18 @@ internal static class Program
                 CheckVisible(window, "更改目录");
                 CheckVisible(window, "选择压缩包");
                 CheckVisible(window, "导入所选版本  ·  默认停用");
+                var tabs = Find<TabControl>(window, _ => true);
+                foreach (TabItem tab in tabs.Items)
+                {
+                    var bounds = tab.TransformToAncestor(window).TransformBounds(new Rect(tab.RenderSize));
+                    Check(bounds.Right <= window.ActualWidth && bounds.Width >= tab.DesiredSize.Width,
+                        $"{width}×{height}: 页签标题被裁切");
+                }
             }
 
             CheckToggleCommands(temporary, archives, window.Dispatcher);
             window.Close();
-            Console.WriteLine("工具缓存释放、复用和修复通过；画像解码、四种布局、界面启停与冲突预览通过。");
+            Console.WriteLine("工具缓存释放、复用和修复通过；画像解码、五种布局、界面启停与冲突预览通过。");
             return 0;
         }
         catch (Exception exception)

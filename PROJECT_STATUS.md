@@ -4,36 +4,29 @@
 
 ## 当前交付
 
-呆猫mod manager v0.1.1，Windows x64 自包含 EXE 与便携 ZIP。
+呆猫mod manager v0.1.2，Windows x64。
 
 - 仓库：<https://github.com/DUSK1NG/daimao-mod-manager>
-- 启动入口：`bin/呆猫mod manager.exe`
-- 当前构建：`DaiMaoModManager-win-x64-20261002-123500`
-- 程序目录：`artifacts/publish/<构建标识>/`
-- 分发目录：`artifacts/package/<构建标识>/`
-- EXE SHA-256：`764fa89a1e5d4338abf1f7ac23d53e36edccaebdd07179a05bda5fa7c2fdb577`
-- ZIP SHA-256：`bb169bf603e5d00e649766bde09f57186c2f02d95f6b931ec4b6209bc796a2bf`
-- 发布状态：v0.1.1 已公开并设为 Latest，三个下载附件的服务端 SHA-256 与本地一致。下载：<https://github.com/DUSK1NG/daimao-mod-manager/releases/tag/v0.1.1>。v0.1.0 附件保留。
+- 入口：`bin/呆猫mod manager.exe`
+- 构建：`DaiMaoModManager-win-x64-20261002-133336`
+- 程序目录：`artifacts/publish/<构建标识>`；分发目录：`artifacts/package/<构建标识>`。
+- 独立 EXE：135,123,547 字节；SHA-256 `84577ee14ed297f474c87894cfe9dcb494466c70898899f33a4f45f456bae325`。
+- ZIP：55,833,122 字节；SHA-256 `f6a08cd73e784808a4245d659c6669785fec2129c8c29e179c9c99fc4e0bc6db`。
+- 自解压包：42,775,064 字节；SHA-256 `79bd14234c96fe04cbd5ddc282de0648a96ab61a6e7f1c266b5eb514654b4f95`。
+- 发布状态：本地验收完成，等待上传及服务端哈希核对。
 
-## 优化结果
+## 功能与验证
 
-界面改用构建时生成的 204 像素画像，取消未使用的大图嵌入。内置组件改用流读写，启动时只检查一次缓存。预览与安装冲突查询使用路径索引；普通启停取消重复状态读取，并合并异常处理、去重和哈希读取。最近 200 条操作记录保留在界面，避免持续增长；及时释放游戏进程查询对象。
+默认窗口 960×720，目录栏单行，长提示换行，状态栏有完整文本提示。三款游戏、导入预览、版本选择、启停、冲突和前置配置功能保留。
 
-修复了旧包有独有文件时冲突切换失败的问题，并补充基线恢复测试。安全边界、备份和事务恢复继续保留。
+23 项核心测试通过，包括真实 RAR、多版本 ZIP、三款游戏前置与恢复。WPF 缓存、画像、五种布局、界面启停和冲突预览通过；解决方案零警告、零错误。ZIP 完整性、中文文件名、自解压、更新、用户文件保留、无效目标路径失败与程序启动通过。采样期间真实 Mod 状态哈希不变。
 
-本机重复启动的三次样本中位数：工作集 164.80 → 134.13 MiB，私有内存 136.42 → 87.75 MiB，累计 CPU 1750 → 1484 ms，窗口出现时间 889 → 887 ms。EXE 减少约 6.02 MiB，ZIP 减少约 5.94 MiB。首次启动新版另测得 6.62 秒，原因未定位；不宣称首次启动加速。完整记录见 `docs/performance.md`。
+尚未完成游戏内加载、跨账户 UAC 和人工拖拽验收。本机没有 Rise 安装目录，模拟目录测试不代表游戏内效果。
 
-## 验证
+## 打包与维护
 
-23 项核心测试通过，覆盖 ZIP、7Z、真实 RAR、多版本包、备份恢复、冲突切换、外部修改、缓存丢失、多实例、路径安全和未完成事务恢复。WPF 测试覆盖工具缓存释放与修复、画像尺寸、四种窗口布局、界面启停状态同步和冲突预览。最终 ZIP 完整性与包内清单核对通过，运行测量前后真实 Mod 状态哈希相同。
+自解压包采用 NSIS 3.11，默认放置在 `%LOCALAPPDATA%\Programs\DaiMaoModManager`。便携 ZIP 可自行选择目录；独立 EXE 也可运行。终端用户无需安装 .NET 或 7-Zip。许可原文与 SHA-256 清单随包提供。
 
-没有进行游戏内加载、跨账户 UAC 和人工拖拽验收。本机没有 Rise 安装目录；模拟测试不等同于游戏内效果。
+运行 `scripts/build-release.ps1` 生成三种交付并更新 bin 联接。artifacts 按 publish、package、tools、tmp、archive 分类，工具链包括 7-Zip 与 NSIS。用户 Mod 数据保存在 `%LOCALAPPDATA%\HunterModManager`。性能记录见 `docs/performance.md`。
 
-## 目录与维护
-
-artifacts 按 publish、package、tools、tmp、archive 分类。旧稳定构建和中间构建已归档并核对旧 EXE 哈希；publish/package 各保留最终构建，bin 指向当前 publish。原始画像与生成的界面缩略图均保存在源码 Assets 中。
-
-运行 `scripts/build-release.ps1` 打包并更新入口。性能复测使用 `scripts/measure-runtime.ps1`，报告放 `artifacts/tmp/performance`。Mod 数据仍保存在 `%LOCALAPPDATA%\HunterModManager`，不参与构建清理。早前被自动审批拒绝的预览 HTML 清理没有重试。
-
-本轮没有调用 Jev 或新建子代理；工具耗时在执行记录中，模型 usage 与实付费用 unknown。
-
+本轮紧凑界面使用 gpt-6.1-sol 子代理；根任务整合、打包与验收。没有调用 Jev，工具耗时见执行记录，模型 usage 与实付费用 unknown。

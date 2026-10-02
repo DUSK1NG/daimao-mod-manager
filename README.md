@@ -4,7 +4,9 @@
 
 给 Windows 版《怪物猎人：世界》《怪物猎人：崛起》《怪物猎人：荒野》管理文件型 Mod。把 ZIP、RAR 或 7Z 拖进窗口，先看它会写到哪里，再决定是否启用。
 
-[下载最新版本](https://github.com/DUSK1NG/daimao-mod-manager/releases/latest) · Windows x64 · 解压 ZIP 后运行 `呆猫mod manager.exe`，也可直接下载独立 EXE。无需另装 .NET 或 7-Zip。
+[下载最新版本](https://github.com/DUSK1NG/daimao-mod-manager/releases/latest) · Windows x64 · 无需另装 .NET 或 7-Zip。
+
+下载 `DaiMaoModManager-Setup.exe`，双击后解压到 `%LOCALAPPDATA%\Programs\DaiMaoModManager`，完成后直接打开程序。也可以下载 ZIP，解压到自己选的文件夹，再运行 `呆猫mod manager.exe`。独立 EXE 可以直接运行。自解压包只放置程序文件；Mod 包、启用记录和备份仍在 `%LOCALAPPDATA%\HunterModManager`。
 
 ## 怎么用
 
@@ -29,7 +31,7 @@
 
 ## 从源码构建
 
-开发需要 Windows x64、.NET 10 SDK 和 7-Zip。构建便携 EXE 与 ZIP：
+开发需要 Windows x64、.NET 10 SDK、7-Zip 和 [NSIS 3.11](https://sourceforge.net/projects/nsis/files/NSIS%203/3.11/nsis-3.11.zip/download)。将 NSIS 的 ZIP 解压到 `artifacts/tools/nsis`，得到 `nsis-3.11/makensis.exe`。构建便携 EXE、ZIP 和自解压包：
 
 ```powershell
 .\scripts\build-release.ps1

@@ -4,7 +4,7 @@
         xmlns:vm="clr-namespace:HunterModManager.Wpf.ViewModels"
         xmlns:conv="clr-namespace:HunterModManager.Wpf.Converters"
         xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
-        Title="呆猫mod manager" Icon="/HunterModManager.Wpf;component/Assets/daimao.ico" Width="1100" Height="760" MinWidth="640" MinHeight="520"
+        Title="呆猫mod manager" Icon="/HunterModManager.Wpf;component/Assets/daimao.ico" Width="960" Height="720" MinWidth="640" MinHeight="520"
         WindowStartupLocation="CenterScreen" AllowDrop="True"
         Drop="Window_Drop" DragEnter="Window_DragEnter"
         Loaded="Window_Loaded" SizeChanged="Window_SizeChanged">
@@ -68,20 +68,20 @@
 
         <Border Grid.Row="1" Background="{StaticResource BgMidBrush}"
                 BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1"
-                Padding="20,11,20,13">
+                Padding="20,10">
             <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-                <TextBlock Text="当前游戏目录" Style="{StaticResource SectionLabel}" Margin="0,0,0,6" />
-                <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="游戏目录" Style="{StaticResource SectionLabel}" VerticalAlignment="Center" Margin="0,0,12,0" />
+                <Grid Grid.Column="1">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
                     <TextBox Text="{Binding GameRoot, Mode=OneWay}" IsReadOnly="True"
-                             ToolTip="{Binding GameRoot}" VerticalAlignment="Center" />
+                             ToolTip="{Binding GameRoot}" AutomationProperties.Name="当前游戏目录" VerticalAlignment="Center" />
                     <Button Grid.Column="1" Content="更改目录" Margin="8,0,0,0"
                             Command="{Binding BrowseGameRootCommand}" />
                 </Grid>
@@ -261,7 +261,7 @@
                                 <StackPanel>
                                     <TextBlock Text="导入压缩包" Style="{StaticResource HeaderText}" />
                                     <TextBlock Text="ZIP、RAR、7Z 都可以；我先核对路径，再导入。"
-                                               Style="{StaticResource SecondaryText}" Margin="0,4,0,14" />
+                                               Style="{StaticResource SecondaryText}" TextWrapping="Wrap" Margin="0,4,0,14" />
                                     <TextBlock Text="压缩包" Style="{StaticResource SectionLabel}" Margin="0,0,0,6" />
                                     <Grid Margin="0,0,0,13">
                                         <Grid.ColumnDefinitions>
@@ -281,9 +281,9 @@
                                             <TextBlock Text="↓" FontSize="29" FontWeight="Light"
                                                        Foreground="{StaticResource AccentBlueBrush}"
                                                        HorizontalAlignment="Center" />
-                                            <TextBlock Text="老大，也可以把压缩包拖到窗口" HorizontalAlignment="Center" Margin="0,3,0,0" />
+                                            <TextBlock Text="老大，也可以把压缩包拖到窗口" TextWrapping="Wrap" TextAlignment="Center" Margin="0,3,0,0" />
                                             <TextBlock Text="导入前会显示版本、目标路径与冲突"
-                                                       Style="{StaticResource SecondaryText}" HorizontalAlignment="Center"
+                                                       Style="{StaticResource SecondaryText}" TextWrapping="Wrap" TextAlignment="Center"
                                                        Margin="0,3,0,0" />
                                         </StackPanel>
                                     </Border>
@@ -421,7 +421,7 @@
                 </Grid.ColumnDefinitions>
                 <TextBlock Text="●" Foreground="{StaticResource SuccessGreenBrush}"
                            FontSize="10" VerticalAlignment="Center" Margin="0,0,9,0" />
-                <TextBlock Grid.Column="1" Text="{Binding StatusText}" TextTrimming="CharacterEllipsis"
+                <TextBlock Grid.Column="1" Text="{Binding StatusText}" ToolTip="{Binding StatusText}" TextTrimming="CharacterEllipsis"
                            VerticalAlignment="Center" Style="{StaticResource SecondaryText}" />
             </Grid>
         </Border>

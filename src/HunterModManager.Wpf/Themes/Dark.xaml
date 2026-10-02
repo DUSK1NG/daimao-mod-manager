@@ -265,7 +265,7 @@
     <Style TargetType="TabItem">
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="Foreground" Value="{StaticResource FgSecondaryBrush}" />
-        <Setter Property="Padding" Value="16,12" />
+        <Setter Property="Padding" Value="14,10" />
         <Setter Property="Cursor" Value="Hand" />
         <Setter Property="Template">
             <Setter.Value>
