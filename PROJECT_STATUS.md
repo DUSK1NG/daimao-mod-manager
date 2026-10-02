@@ -13,7 +13,7 @@
 - 独立 EXE：135,123,547 字节；SHA-256 `84577ee14ed297f474c87894cfe9dcb494466c70898899f33a4f45f456bae325`。
 - ZIP：55,833,122 字节；SHA-256 `f6a08cd73e784808a4245d659c6669785fec2129c8c29e179c9c99fc4e0bc6db`。
 - 自解压包：42,775,064 字节；SHA-256 `79bd14234c96fe04cbd5ddc282de0648a96ab61a6e7f1c266b5eb514654b4f95`。
-- 发布状态：本地验收完成，等待上传及服务端哈希核对。
+- 发布状态：v0.1.2 已公开并设为 Latest，四个下载附件的服务端 SHA-256、大小与本地一致。下载：<https://github.com/DUSK1NG/daimao-mod-manager/releases/tag/v0.1.2>。
 
 ## 功能与验证
 

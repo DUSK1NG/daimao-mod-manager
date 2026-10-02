@@ -16,9 +16,9 @@
 - 运行采样前后真实 Mod 状态哈希相同；模拟测试没有修改真实游戏目录。没有完成游戏内加载、跨账户 UAC 和人工拖拽验收。
 - EXE 135,123,547 字节，ZIP 55,833,122 字节，自解压包 42,775,064 字节。测量与边界见 `docs/performance.md`。
 
-## 下一步
+## 发布
 
-将已验证文件发布到公开 GitHub 仓库，并核对 Release 附件哈希：<https://github.com/DUSK1NG/daimao-mod-manager>。
+v0.1.2 已发布到公开 GitHub 仓库并设为 Latest。独立 EXE、ZIP、自解压包和下载清单的服务端 SHA-256、大小与本地一致：<https://github.com/DUSK1NG/daimao-mod-manager/releases/tag/v0.1.2>。
 
 ## 维护
 
