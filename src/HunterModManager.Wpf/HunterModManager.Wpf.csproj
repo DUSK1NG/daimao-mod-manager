@@ -11,9 +11,9 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(EmbedSevenZip)' == 'true'">
-    <EmbeddedResource Include="..\..\artifacts\embedded-tools\7z.exe" LogicalName="HunterModManager.Tools.7z.exe" />
-    <EmbeddedResource Include="..\..\artifacts\embedded-tools\7z.dll" LogicalName="HunterModManager.Tools.7z.dll" />
-    <EmbeddedResource Include="..\..\artifacts\embedded-tools\License.txt" LogicalName="HunterModManager.Tools.License.txt" />
+    <EmbeddedResource Include="..\..\artifacts\tools\7zip\7z.exe" LogicalName="HunterModManager.Tools.7z.exe" />
+    <EmbeddedResource Include="..\..\artifacts\tools\7zip\7z.dll" LogicalName="HunterModManager.Tools.7z.dll" />
+    <EmbeddedResource Include="..\..\artifacts\tools\7zip\License.txt" LogicalName="HunterModManager.Tools.License.txt" />
     <EmbeddedResource Include="..\..\THIRD-PARTY-NOTICES.md" LogicalName="HunterModManager.Tools.THIRD-PARTY-NOTICES.md" />
   </ItemGroup>
 

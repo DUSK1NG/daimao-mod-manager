@@ -1,39 +1,39 @@
 # 项目状态
 
-最后更新：2026-09-28
+最后更新：2026-10-02
 
 ## 当前交付
 
-呆猫mod manager 为 Windows x64 自包含 WPF 程序，管理 Steam 版《世界》《崛起》《荒野》的文件型 Mod。可拖入 ZIP/RAR/7Z，预览目标路径，选择版本，导入后勾选启用、取消勾选停用。提供冲突切换、逐文件备份和恢复、前置环境配置。PAK 和独立安装器不自动部署。
+呆猫mod manager 管理 Steam 版《世界》《崛起》《荒野》的标准文件型 Mod，提供压缩包预览、版本选择、导入、勾选启停、冲突切换、文件备份恢复及前置配置。
 
-- GitHub：<https://github.com/DUSK1NG/daimao-mod-manager>
-- 最新下载：<https://github.com/DUSK1NG/daimao-mod-manager/releases/latest>
-- 本地发布目录：`artifacts/release/DaiMaoModManager-win-x64-20260928-184856/`
-- 固定启动入口：`bin/呆猫mod manager.exe`。根目录 bin 是指向当前发布包的目录联接，两个路径访问同一份文件；下次发布自动更新指向。
-- EXE：`呆猫mod manager.exe`
-- EXE SHA-256：`55bc386c50210900999ad0c94232c7a4b5b93d834eba9f7d133a80767b74060f`
-- ZIP SHA-256：`ec8ef5a80337bd75ecef3e799bf0c8b67ef4c645fe7f879ca4c2966d4a1de716`
+- 仓库：<https://github.com/DUSK1NG/daimao-mod-manager>
+- 公开下载：<https://github.com/DUSK1NG/daimao-mod-manager/releases/latest>，现有 v0.1.0 附件保持原样。
+- 固定启动入口：`bin/呆猫mod manager.exe`，通过目录联接访问当前 publish 目录。
+- 当前程序：`artifacts/publish/DaiMaoModManager-win-x64-20260928-191731/`
+- 当前分发包：`artifacts/package/DaiMaoModManager-win-x64-20260928-191731/`
+- 当前 EXE SHA-256：`199c1aad9994ea1eb5a01bc7bba751384c520563a04ca76c140eb9d5ae3b13d1`
+- 当前 ZIP SHA-256：`1226f8d6b1470bf4e2e1fc421b2be5d3b2a6fcfbc921746e1848f05632d16a01`
 
-## 本次改动
+本地包用于验证整理后的构建流程，与已公开的 v0.1.0 附件分别记录。
 
-- 版本列表直接提示“点选其中一个后才能导入”。多版本包仍需明确选择，单版本包自动选中。
-- ZIP、7Z、RAR 测试覆盖导入、启用及停用。新增真实多版本 ZIP 的各版本启停检查；样本通过环境变量指定，不进入源码仓库或发行包。
-- README 收短为下载、功能、使用方法和构建步骤。
-- 发布目录只保留最新版。10 个旧发布目录可恢复地移入 `artifacts/previous-releases/`，未永久删除；批量删除被自动审批拒绝，只返回 `blocked by policy`。
-- 旧根目录 bin 已归档到 `artifacts/previous-releases/legacy-root-bin-20260927/`，遗留的旧版 ZIP 和校验文件也已归档。源码项目内的 bin/obj 保持编译用途。
+## 目录整理
 
-## 已验证
+参考 .NET SDK 的输出类型约定，artifacts 下只保留五类目录：`publish` 放可运行程序，`package` 放分发文件，`tools` 放构建组件，`tmp` 放暂存与试运行文件，`archive` 放历史文件。详细说明和命名规则见 `docs/directory-layout.md`。源码项目继续使用默认 bin/obj。
 
-- 22 项核心集成测试全部通过，包括三种压缩格式、多个安装版本、前置条件、冲突切换、原文件恢复、外部修改保护及中断恢复。
-- WPF 布局测试通过 1100×760、800×760、700×720、640×540 四种尺寸。
-- 整套 Release 构建：0 警告、0 错误。
-- 新 EXE 启动后标题正确、主窗口有响应，并正常关闭。
-- ZIP 通过 7-Zip 完整性检查，包内 5 个文件与 SHA-256 清单一致。
-- 更新前后实际 Mod 状态文件哈希相同，4 个导入记录、2 个启用状态保留。
-- 发布入口更新脚本的语法、重复运行和目标切换检查通过；固定入口与发布包的 EXE 文件 ID 完全相同。此次目录整理不涉及程序二进制更新。
+- 已删除 27 张旧截图、图标试稿和图标预览。正式源码素材及完整发布包中的图标保留。
+- 原 release、previous-releases、embedded-tools 已分别迁移到 package、archive/releases、tools/7zip。预览浏览器配置和试运行输出归入 tmp。
+- 构建脚本与 WPF 嵌入资源路径已同步更新；新包生成后自动更新根目录 bin。
+- 上一份本地构建已归档；publish 与 package 中各保留一份当前构建。
+- 残留预览 HTML 与空目录的清理命令被自动审批拒绝，仅返回 `blocked by policy`，因此仍保留在 `artifacts/tmp/icon-preview`。
 
-测试均使用临时模拟目录；真实游戏目录只做过只读预览。没有完成游戏内加载、跨账户 UAC、人工拖拽交互验证，本机也未安装 Rise。
+## 验证
+
+本次重新运行了完整发布脚本。新路径下的自包含 EXE、ZIP 和校验文件生成成功；ZIP 完整性与包内 5 个文件的 SHA-256 验证通过。bin 与实际 EXE 的文件 ID 相同；从 bin 启动的窗口标题正确、正常响应并正常退出。验证前后实际 Mod 状态文件哈希相同。
+
+2026-09-28 的功能基线为 22 项核心集成测试全部通过，以及四种尺寸的 WPF 布局测试通过。本次只调整构建和目录组织，没有重复执行这些未受影响的功能测试。
+
+尚未完成游戏内加载、跨账户 UAC、人工拖拽交互验证；本机没有 Rise 安装。模拟目录测试与实际游戏效果分别记录。
 
 ## 维护
 
-使用 `scripts/build-release.ps1` 生成自包含 EXE 和便携 ZIP。运行要求与命令见 README。下一次更新先验证新包，再处理旧发布文件；保留应用数据中的 Mod 包、状态、事务记录和备份。
+运行 `scripts/build-release.ps1` 打包，再由 `scripts/set-current-release.ps1` 更新启动入口。归档旧版前确认 bin 已指向新程序；保留当前 publish 目录。Mod 包、状态、事务日志和恢复备份仍存于 `%LOCALAPPDATA%\HunterModManager`，不参与构建目录清理。

@@ -1,7 +1,7 @@
 param(
     [string]$Dotnet = 'dotnet',
     [string]$SevenZipDirectory = 'C:\Program Files\7-Zip',
-    [string]$OutputDirectory = (Join-Path $PSScriptRoot '..\artifacts\release')
+    [string]$OutputDirectory = (Join-Path $PSScriptRoot '..\artifacts\package')
 )
 
 $ErrorActionPreference = 'Stop'
@@ -9,9 +9,9 @@ $projectRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 $outputRoot = [IO.Path]::GetFullPath($OutputDirectory)
 $releaseName = 'DaiMaoModManager-win-x64-' + (Get-Date -Format 'yyyyMMdd-HHmmss')
 $workRoot = Join-Path $outputRoot $releaseName
-$publishRoot = Join-Path $workRoot 'publish'
-$packageRoot = Join-Path $workRoot 'DaiMaoModManager'
-$embeddedRoot = Join-Path $projectRoot 'artifacts\embedded-tools'
+$publishRoot = Join-Path $projectRoot ('artifacts\tmp\publish\' + $releaseName)
+$packageRoot = Join-Path $projectRoot ('artifacts\publish\' + $releaseName)
+$embeddedRoot = Join-Path $projectRoot 'artifacts\tools\7zip'
 $exeName = '呆猫mod manager.exe'
 & (Join-Path $projectRoot 'scripts\build-icon.ps1') | Out-Null
 
@@ -20,7 +20,7 @@ foreach ($file in @('7z.exe', '7z.dll', 'License.txt')) {
         throw "Missing 7-Zip component: $file"
     }
 }
-New-Item -ItemType Directory -Path $publishRoot, $packageRoot, $embeddedRoot -Force | Out-Null
+New-Item -ItemType Directory -Path $workRoot, $publishRoot, $packageRoot, $embeddedRoot -Force | Out-Null
 Copy-Item -LiteralPath (Join-Path $SevenZipDirectory '7z.exe'), (Join-Path $SevenZipDirectory '7z.dll'), (Join-Path $SevenZipDirectory 'License.txt') -Destination $embeddedRoot
 & $Dotnet publish (Join-Path $projectRoot 'src\HunterModManager.Wpf\HunterModManager.Wpf.csproj') -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:PublishTrimmed=false -p:EmbedSevenZip=true -o $publishRoot
 if ($LASTEXITCODE -ne 0) { throw "dotnet publish failed: $LASTEXITCODE" }

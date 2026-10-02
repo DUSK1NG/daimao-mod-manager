@@ -35,7 +35,7 @@
 .\scripts\build-release.ps1
 ```
 
-打包后从根目录 `bin\呆猫mod manager.exe` 启动。`bin` 是指向最新发布文件夹的目录联接，与 `artifacts/release` 使用同一份文件；以后打包会自动更新这个入口。各源码项目自己的 `bin`、`obj` 仍用于编译。
+打包后从根目录 `bin\呆猫mod manager.exe` 启动。`bin` 是指向 `artifacts/publish` 下最新程序的目录联接；下载包在 `artifacts/package`。以后打包会自动更新入口。各源码项目自己的 `bin`、`obj` 仍用于编译，完整说明见[目录约定](docs/directory-layout.md)。
 
 核心集成测试使用临时游戏目录，不写入真实安装目录：
 
