@@ -34,6 +34,7 @@ public sealed class MainViewModel : ViewModelBase
     private int selectedVariantIndex = -1;
     private string previewText = "";
     private string logText = "";
+    private readonly Queue<string> logEntries = new();
     private ModItemViewModel? selectedMod;
     private int selectedTabIndex;
 
@@ -283,7 +284,7 @@ public sealed class MainViewModel : ViewModelBase
         {
             try
             {
-                await manager.SetEnabledAsync(item.Id, wantEnabled);
+                await ToggleCoreAsync(item.Id, wantEnabled, false);
             }
             catch (InvalidOperationException ex) when (wantEnabled && ex.Message.StartsWith("目标文件与已启用 Mod 冲突：", StringComparison.Ordinal))
             {
@@ -294,11 +295,6 @@ public sealed class MainViewModel : ViewModelBase
                 if (result != MessageBoxResult.Yes) return;
                 await ToggleCoreAsync(item.Id, wantEnabled, true);
             }
-            catch (UnauthorizedAccessException)
-            {
-                await ToggleElevatedAsync(item.Id, wantEnabled, false);
-            }
-            manager.Reload();
             SetStatus((wantEnabled ? "已启用：" : "已停用：") + item.Name);
         });
         RefreshMods();
@@ -317,6 +313,7 @@ public sealed class MainViewModel : ViewModelBase
         if (!Program.RunElevated("--elevated-toggle", Program.DataRoot, id,
             enabled ? "enable" : "disable", switchConflicts ? "switch" : "normal"))
             throw new InvalidOperationException("管理员辅助进程未完成操作。");
+        manager.Reload(); // Only the helper process changes state outside this manager.
         return Task.CompletedTask;
     }
 
@@ -378,7 +375,6 @@ public sealed class MainViewModel : ViewModelBase
                     MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes) return;
                 var record = await manager.ImportPrerequisiteAsync(selectedPath, kind, SelectedGame, GameRoot);
                 await ToggleCoreAsync(record.Id, true, false);
-                manager.Reload();
                 RefreshMods();
                 RefreshPrerequisites();
                 SetStatus("已部署前置组件；请启动游戏确认实际生效。");
@@ -444,13 +440,14 @@ public sealed class MainViewModel : ViewModelBase
         if (variant.BlockedReason is not null) lines.Add("⛔ 阻止安装：" + variant.BlockedReason);
         if (variant.Requirements.Count > 0) lines.Add("🔧 前置：" + string.Join("；", variant.Requirements));
         lines.Add($"📦 文件：{variant.Files.Count} 个");
+        var owners = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var mod in manager.Mods.Where(m => m.Enabled && m.Game == SelectedGame &&
+                     m.GameRoot.Equals(GameRoot, StringComparison.OrdinalIgnoreCase)))
+            foreach (var file in mod.Files) owners.TryAdd(file.Target, mod.Name);
         foreach (var file in variant.Files)
         {
             var target = Path.Combine(GameRoot, file.Target.Replace('/', Path.DirectorySeparatorChar));
-            var owner = manager.Mods.FirstOrDefault(m => m.Enabled && m.Game == SelectedGame &&
-                m.GameRoot.Equals(GameRoot, StringComparison.OrdinalIgnoreCase) &&
-                m.Files.Any(f => f.Target.Equals(file.Target, StringComparison.OrdinalIgnoreCase)));
-            var state = owner is not null ? " 🔴 [与 " + owner.Name + " 冲突]"
+            var state = owners.TryGetValue(file.Target, out var owner) ? " 🔴 [与 " + owner + " 冲突]"
                 : File.Exists(target) ? " 🟡 [将备份原文件]" : " 🟢 [新文件]";
             lines.Add("  " + file.Source + "  →  " + target + state);
         }
@@ -471,7 +468,9 @@ public sealed class MainViewModel : ViewModelBase
     private void SetStatus(string message)
     {
         StatusText = message;
-        LogText += $"[{DateTime.Now:HH:mm:ss}] {message}{Environment.NewLine}";
+        logEntries.Enqueue($"[{DateTime.Now:HH:mm:ss}] {message}");
+        if (logEntries.Count > 200) logEntries.Dequeue();
+        LogText = string.Join(Environment.NewLine, logEntries) + Environment.NewLine;
     }
 
     private void ShowError(string message)

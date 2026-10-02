@@ -21,19 +21,20 @@ internal static class Program
         try
         {
             if (args.Length != 0) return RunHelper(args);
+            var archives = new ArchiveService(FindSevenZip());
             ModManager manager;
-            try { manager = CreateManager(); }
+            try { manager = new ModManager(DataRoot, archives); }
             catch (UnauthorizedAccessException)
             {
                 if (!RunElevated("--elevated-recover", DataRoot)) return 1;
-                manager = CreateManager();
+                manager = new ModManager(DataRoot, archives);
             }
 
             var app = new App();
             app.InitializeComponent();
             var window = new MainWindow
             {
-                DataContext = new MainViewModel(manager, new ArchiveService(FindSevenZip()))
+                DataContext = new MainViewModel(manager, archives)
             };
             app.Run(window);
             return 0;

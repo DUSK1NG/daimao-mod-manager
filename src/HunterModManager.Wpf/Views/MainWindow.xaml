@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="clr-namespace:HunterModManager.Wpf.ViewModels"
         xmlns:conv="clr-namespace:HunterModManager.Wpf.Converters"
+        xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
         Title="呆猫mod manager" Icon="/HunterModManager.Wpf;component/Assets/daimao.ico" Width="1100" Height="760" MinWidth="640" MinHeight="520"
         WindowStartupLocation="CenterScreen" AllowDrop="True"
         Drop="Window_Drop" DragEnter="Window_DragEnter"
@@ -11,6 +12,13 @@
         <conv:BoolToVisibilityConverter x:Key="BoolVis" />
         <conv:NullOrEmptyToVisibilityConverter x:Key="NotEmptyVis" />
         <conv:InverseNullOrEmptyToVisibilityConverter x:Key="InvNotEmptyVis" />
+        <!-- 68 DIP portraits at up to 300% display scaling. Keep full-size artwork in Assets. -->
+        <BitmapImage x:Key="StickerPortrait" UriSource="/HunterModManager.Wpf;component/Assets/portraits/daimao-sticker.png"
+                     DecodePixelWidth="204" CacheOption="OnLoad" po:Freeze="True" />
+        <BitmapImage x:Key="CrayonPortrait" UriSource="/HunterModManager.Wpf;component/Assets/portraits/daimao-crayon.png"
+                     DecodePixelWidth="204" CacheOption="OnLoad" po:Freeze="True" />
+        <BitmapImage x:Key="PixelPortrait" UriSource="/HunterModManager.Wpf;component/Assets/portraits/daimao-pixel.png"
+                     DecodePixelWidth="204" CacheOption="OnLoad" po:Freeze="True" />
     </Window.Resources>
 
     <Grid Background="{StaticResource BgDeepBrush}">
@@ -92,7 +100,7 @@
                 <Border Grid.Column="0" Background="{StaticResource BgDeepBrush}" CornerRadius="6" Margin="3" Padding="6">
                     <Grid>
                         <Grid.ColumnDefinitions><ColumnDefinition Width="74" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                        <Image Source="/HunterModManager.Wpf;component/Assets/daimao-sticker.png"
+                        <Image Source="{StaticResource StickerPortrait}"
                                Width="68" Height="68" Stretch="Uniform" Margin="0,0,6,0"
                                AutomationProperties.Name="贴纸风格的呆猫画像" />
                         <StackPanel Grid.Column="1" VerticalAlignment="Center">
@@ -105,7 +113,7 @@
                 <Border Grid.Column="1" Background="{StaticResource BgDeepBrush}" CornerRadius="6" Margin="3" Padding="6">
                     <Grid>
                         <Grid.ColumnDefinitions><ColumnDefinition Width="74" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                        <Image Source="/HunterModManager.Wpf;component/Assets/daimao-crayon.png"
+                        <Image Source="{StaticResource CrayonPortrait}"
                                Width="68" Height="68" Stretch="Uniform" Margin="0,0,6,0"
                                AutomationProperties.Name="蜡笔风格的呆猫画像" />
                         <StackPanel Grid.Column="1" VerticalAlignment="Center">
@@ -118,7 +126,7 @@
                 <Border Grid.Column="2" Background="{StaticResource BgDeepBrush}" CornerRadius="6" Margin="3" Padding="6">
                     <Grid>
                         <Grid.ColumnDefinitions><ColumnDefinition Width="74" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                        <Image Source="/HunterModManager.Wpf;component/Assets/daimao-pixel.png"
+                        <Image Source="{StaticResource PixelPortrait}"
                                Width="68" Height="68" Stretch="Uniform" Margin="0,0,6,0"
                                AutomationProperties.Name="像素风格的呆猫画像" />
                         <StackPanel Grid.Column="1" VerticalAlignment="Center">
@@ -393,7 +401,7 @@
                                            Style="{StaticResource SecondaryText}" Margin="0,4,0,0" />
                             </StackPanel>
                             <Border Grid.Row="1" Style="{StaticResource Card}" Background="{StaticResource BgDeepBrush}">
-                                <TextBox Text="{Binding LogText, Mode=OneWay}" IsReadOnly="True" AcceptsReturn="True"
+                                <TextBox Text="{Binding LogText, Mode=OneWay}" ToolTip="保留本次运行最近 200 条操作记录" IsReadOnly="True" AcceptsReturn="True"
                                          TextWrapping="NoWrap" VerticalScrollBarVisibility="Auto"
                                          HorizontalScrollBarVisibility="Auto" FontFamily="Consolas" FontSize="12"
                                          Background="Transparent" BorderThickness="0" Padding="0" />

@@ -8,6 +8,23 @@ if (-not (Test-Path -LiteralPath $pngPath -PathType Leaf)) { throw "Image missin
 if (-not (Test-Path -LiteralPath $compactPath -PathType Leaf)) { throw "Image missing: $compactPath" }
 
 Add-Type -AssemblyName System.Drawing
+# Generate display-size resources during packaging rather than scaling large PNGs at startup.
+$portraitDirectory = Join-Path $projectRoot 'src\HunterModManager.Wpf\Assets\portraits'
+New-Item -ItemType Directory -Path $portraitDirectory -Force | Out-Null
+foreach ($style in 'sticker', 'crayon', 'pixel') {
+    $portraitSource = [Drawing.Bitmap]::new((Join-Path $projectRoot "src\HunterModManager.Wpf\Assets\daimao-$style.png"))
+    $portrait = [Drawing.Bitmap]::new(204, 204)
+    try {
+        $portraitGraphics = [Drawing.Graphics]::FromImage($portrait)
+        try {
+            $portraitGraphics.CompositingMode = [Drawing.Drawing2D.CompositingMode]::SourceCopy
+            $portraitGraphics.InterpolationMode = [Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
+            $portraitGraphics.PixelOffsetMode = [Drawing.Drawing2D.PixelOffsetMode]::HighQuality
+            $portraitGraphics.DrawImage($portraitSource, [Drawing.Rectangle]::new(0, 0, 204, 204))
+        } finally { $portraitGraphics.Dispose() }
+        $portrait.Save((Join-Path $portraitDirectory "daimao-$style.png"), [Drawing.Imaging.ImageFormat]::Png)
+    } finally { $portrait.Dispose(); $portraitSource.Dispose() }
+}
 $source = [Drawing.Bitmap]::new($pngPath)
 $compact = [Drawing.Bitmap]::new($compactPath)
 $sizes = @(16, 24, 32, 48, 64, 128, 256)

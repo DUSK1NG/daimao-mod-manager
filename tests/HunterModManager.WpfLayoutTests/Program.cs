@@ -1,7 +1,9 @@
 using System.IO;
+using System.IO.Compression;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using HunterModManager.Core;
 using HunterModManager.Wpf;
@@ -16,6 +18,19 @@ internal static class Program
         var temporary = Path.Combine(Path.GetTempPath(), "HunterModManager.WpfLayoutTests", Guid.NewGuid().ToString("N"));
         try
         {
+            var cache = Path.Combine(temporary, "cache");
+            var tool = EmbeddedSevenZip.ExtractTo(cache)!;
+            var toolHash = ArchiveService.HashFile(tool);
+            var toolDirectory = Path.GetDirectoryName(tool)!;
+            Check(Directory.GetFiles(toolDirectory).Length == 4, "首次启动应释放全部内置组件");
+            var writtenAt = File.GetLastWriteTimeUtc(tool);
+            EmbeddedSevenZip.ExtractTo(cache);
+            Check(File.GetLastWriteTimeUtc(tool) == writtenAt, "完整缓存不应重复写入");
+            File.WriteAllText(tool, "damaged-cache");
+            File.Delete(Path.Combine(toolDirectory, "7z.dll"));
+            EmbeddedSevenZip.ExtractTo(cache);
+            Check(ArchiveService.HashFile(tool) == toolHash && File.Exists(Path.Combine(toolDirectory, "7z.dll")),
+                "缓存损坏和组件缺失时应恢复内置版本");
             var sevenZip = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "7-Zip", "7z.exe");
             var archives = new ArchiveService(sevenZip);
             var app = new App();
@@ -43,6 +58,12 @@ internal static class Program
                 return 0;
             }
             window.Show();
+            foreach (var key in new[] { "StickerPortrait", "CrayonPortrait", "PixelPortrait" })
+            {
+                var portrait = (BitmapSource)window.Resources[key];
+                Check(portrait.PixelWidth == 204 && portrait.PixelHeight == 204 && portrait.IsFrozen,
+                    $"{key}: 画像应按显示尺寸解码并冻结");
+            }
             Check(Find<TextBlock>(window, x => x.Text == "尚无 Mod").IsVisible,
                 "空列表提示不可见");
             var advanced = Find<Button>(window, x => Equals(x.Content, "高级选项：手动映射"));
@@ -79,8 +100,9 @@ internal static class Program
                 CheckVisible(window, "导入所选版本  ·  默认停用");
             }
 
+            CheckToggleCommands(temporary, archives, window.Dispatcher);
             window.Close();
-            Console.WriteLine("WPF 布局测试通过：1100×760、800×760、700×720、640×540 的主要操作可见。");
+            Console.WriteLine("工具缓存释放、复用和修复通过；画像解码、四种布局、界面启停与冲突预览通过。");
             return 0;
         }
         catch (Exception exception)
@@ -92,6 +114,54 @@ internal static class Program
         {
             if (Directory.Exists(temporary)) Directory.Delete(temporary, true);
         }
+    }
+
+    private static void CheckToggleCommands(string temporary, ArchiveService archives, Dispatcher dispatcher)
+    {
+        var game = Path.Combine(temporary, "game");
+        Directory.CreateDirectory(game);
+        File.WriteAllText(Path.Combine(game, Games.Exe(GameId.World)), "fixture");
+        var zipPath = Path.Combine(temporary, "ui-toggle.zip");
+        using (var zip = ZipFile.Open(zipPath, ZipArchiveMode.Create))
+        using (var writer = new StreamWriter(zip.CreateEntry("nativePC/plugins/ui.txt").Open()))
+            writer.Write("ui-command");
+        var data = Path.Combine(temporary, "ui-data");
+        var manager = new ModManager(data, archives);
+        Task.Run(() => manager.ImportAsync(zipPath, GameId.World, game)).GetAwaiter().GetResult();
+        var model = new MainViewModel(manager, archives);
+        model.ToggleModCommand.Execute(model.Mods.Single());
+        WaitForCommand(model, dispatcher);
+        var target = Path.Combine(game, "nativePC", "plugins", "ui.txt");
+        Check(model.Mods.Single().Enabled && File.ReadAllText(target) == "ui-command",
+            "界面启用后应同步列表和部署内容");
+        model.Analysis = new PackageAnalysis
+        {
+            ArchivePath = zipPath,
+            Variants = [new PackageVariant { Files = [new PackageFile { Source = "UI.txt", Target = "nativePC/plugins/UI.txt" }] }]
+        };
+        model.SelectedVariantIndex = 0;
+        Check(model.PreviewText.Contains("与 ui-toggle 冲突"), "冲突预览应忽略路径大小写");
+        model.ToggleModCommand.Execute(model.Mods.Single());
+        WaitForCommand(model, dispatcher);
+        Check(!model.Mods.Single().Enabled && !File.Exists(target), "界面停用后应撤回文件并同步列表");
+        Check(!new ModManager(data, archives).Mods.Single().Enabled, "界面停用结果应持久保存");
+    }
+
+    private static void WaitForCommand(MainViewModel model, Dispatcher dispatcher)
+    {
+        if (!model.IsBusy) return;
+        var frame = new DispatcherFrame();
+        var started = DateTime.UtcNow;
+        var timedOut = false;
+        var timer = new DispatcherTimer(TimeSpan.FromMilliseconds(20), DispatcherPriority.Background,
+            (_, _) =>
+            {
+                timedOut = DateTime.UtcNow - started > TimeSpan.FromSeconds(20);
+                if (!model.IsBusy || timedOut) frame.Continue = false;
+            }, dispatcher);
+        try { Dispatcher.PushFrame(frame); }
+        finally { timer.Stop(); }
+        Check(!timedOut, "界面命令执行超时");
     }
 
     private static void CheckVisible(Window window, string content)

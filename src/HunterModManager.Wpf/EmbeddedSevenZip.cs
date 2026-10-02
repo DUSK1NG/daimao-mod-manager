@@ -14,27 +14,31 @@ internal static class EmbeddedSevenZip
         var assembly = Assembly.GetExecutingAssembly();
         if (assembly.GetManifestResourceInfo(ResourcePrefix + "7z.exe") is null) return null;
 
-        var resources = Files.ToDictionary(name => name, name => ReadResource(assembly, name));
-        var version = Convert.ToHexString(SHA256.HashData(resources["7z.exe"])).Substring(0, 16);
+        using var executable = OpenResource(assembly, "7z.exe");
+        var version = Convert.ToHexString(SHA256.HashData(executable))[..16];
         var toolsRoot = Path.Combine(dataRoot, "tools");
         var directory = Path.Combine(toolsRoot, version);
         CreateSafeDirectory(dataRoot);
         CreateSafeDirectory(toolsRoot);
         CreateSafeDirectory(directory);
 
-        foreach (var (name, bytes) in resources)
+        foreach (var name in Files)
         {
+            using var resource = OpenResource(assembly, name);
+            var expectedHash = SHA256.HashData(resource);
             var destination = Path.Combine(directory, name);
             if (File.Exists(destination))
             {
                 if ((File.GetAttributes(destination) & FileAttributes.ReparsePoint) != 0)
                     throw new IOException($"工具缓存包含链接文件：{destination}");
-                if (SHA256.HashData(File.ReadAllBytes(destination)).SequenceEqual(SHA256.HashData(bytes))) continue;
+                using var cached = File.OpenRead(destination);
+                if (SHA256.HashData(cached).SequenceEqual(expectedHash)) continue;
             }
             var temporary = Path.Combine(directory, $".{name}.{Guid.NewGuid():N}.tmp");
             try
             {
-                File.WriteAllBytes(temporary, bytes);
+                resource.Position = 0;
+                using (var output = File.Create(temporary)) resource.CopyTo(output);
                 File.Move(temporary, destination, overwrite: true);
             }
             finally
@@ -45,14 +49,9 @@ internal static class EmbeddedSevenZip
         return Path.Combine(directory, "7z.exe");
     }
 
-    private static byte[] ReadResource(Assembly assembly, string name)
-    {
-        using var stream = assembly.GetManifestResourceStream(ResourcePrefix + name)
+    private static Stream OpenResource(Assembly assembly, string name)
+        => assembly.GetManifestResourceStream(ResourcePrefix + name)
             ?? throw new InvalidOperationException($"发布包缺少内置 7-Zip 组件：{name}");
-        using var memory = new MemoryStream();
-        stream.CopyTo(memory);
-        return memory.ToArray();
-    }
 
     private static void CreateSafeDirectory(string path)
     {

@@ -4,36 +4,35 @@
 
 ## 当前交付
 
-呆猫mod manager 管理 Steam 版《世界》《崛起》《荒野》的标准文件型 Mod，提供压缩包预览、版本选择、导入、勾选启停、冲突切换、文件备份恢复及前置配置。
+呆猫mod manager v0.1.1，Windows x64 自包含 EXE 与便携 ZIP。
 
 - 仓库：<https://github.com/DUSK1NG/daimao-mod-manager>
-- 公开下载：<https://github.com/DUSK1NG/daimao-mod-manager/releases/latest>，现有 v0.1.0 附件保持原样。
-- 固定启动入口：`bin/呆猫mod manager.exe`，通过目录联接访问当前 publish 目录。
-- 当前程序：`artifacts/publish/DaiMaoModManager-win-x64-20260928-191731/`
-- 当前分发包：`artifacts/package/DaiMaoModManager-win-x64-20260928-191731/`
-- 当前 EXE SHA-256：`199c1aad9994ea1eb5a01bc7bba751384c520563a04ca76c140eb9d5ae3b13d1`
-- 当前 ZIP SHA-256：`1226f8d6b1470bf4e2e1fc421b2be5d3b2a6fcfbc921746e1848f05632d16a01`
+- 启动入口：`bin/呆猫mod manager.exe`
+- 当前构建：`DaiMaoModManager-win-x64-20261002-123500`
+- 程序目录：`artifacts/publish/<构建标识>/`
+- 分发目录：`artifacts/package/<构建标识>/`
+- EXE SHA-256：`764fa89a1e5d4338abf1f7ac23d53e36edccaebdd07179a05bda5fa7c2fdb577`
+- ZIP SHA-256：`bb169bf603e5d00e649766bde09f57186c2f02d95f6b931ec4b6209bc796a2bf`
+- 发布状态：本地验收完成，待上传 v0.1.1；公开 v0.1.0 附件保持原样。
 
-本地包用于验证整理后的构建流程，与已公开的 v0.1.0 附件分别记录。
+## 优化结果
 
-## 目录整理
+界面改用构建时生成的 204 像素画像，取消未使用的大图嵌入。内置组件改用流读写，启动时只检查一次缓存。预览与安装冲突查询使用路径索引；普通启停取消重复状态读取，并合并异常处理、去重和哈希读取。最近 200 条操作记录保留在界面，避免持续增长；及时释放游戏进程查询对象。
 
-参考 .NET SDK 的输出类型约定，artifacts 下只保留五类目录：`publish` 放可运行程序，`package` 放分发文件，`tools` 放构建组件，`tmp` 放暂存与试运行文件，`archive` 放历史文件。详细说明和命名规则见 `docs/directory-layout.md`。源码项目继续使用默认 bin/obj。
+修复了旧包有独有文件时冲突切换失败的问题，并补充基线恢复测试。安全边界、备份和事务恢复继续保留。
 
-- 已删除 27 张旧截图、图标试稿和图标预览。正式源码素材及完整发布包中的图标保留。
-- 原 release、previous-releases、embedded-tools 已分别迁移到 package、archive/releases、tools/7zip。预览浏览器配置和试运行输出归入 tmp。
-- 构建脚本与 WPF 嵌入资源路径已同步更新；新包生成后自动更新根目录 bin。
-- 上一份本地构建已归档；publish 与 package 中各保留一份当前构建。
-- 残留预览 HTML 与空目录的清理命令被自动审批拒绝，仅返回 `blocked by policy`，因此仍保留在 `artifacts/tmp/icon-preview`。
+本机重复启动的三次样本中位数：工作集 164.80 → 134.13 MiB，私有内存 136.42 → 87.75 MiB，累计 CPU 1750 → 1484 ms，窗口出现时间 889 → 887 ms。EXE 减少约 6.02 MiB，ZIP 减少约 5.94 MiB。首次启动新版另测得 6.62 秒，原因未定位；不宣称首次启动加速。完整记录见 `docs/performance.md`。
 
 ## 验证
 
-本次重新运行了完整发布脚本。新路径下的自包含 EXE、ZIP 和校验文件生成成功；ZIP 完整性与包内 5 个文件的 SHA-256 验证通过。bin 与实际 EXE 的文件 ID 相同；从 bin 启动的窗口标题正确、正常响应并正常退出。验证前后实际 Mod 状态文件哈希相同。
+23 项核心测试通过，覆盖 ZIP、7Z、真实 RAR、多版本包、备份恢复、冲突切换、外部修改、缓存丢失、多实例、路径安全和未完成事务恢复。WPF 测试覆盖工具缓存释放与修复、画像尺寸、四种窗口布局、界面启停状态同步和冲突预览。最终 ZIP 完整性与包内清单核对通过，运行测量前后真实 Mod 状态哈希相同。
 
-2026-09-28 的功能基线为 22 项核心集成测试全部通过，以及四种尺寸的 WPF 布局测试通过。本次只调整构建和目录组织，没有重复执行这些未受影响的功能测试。
+没有进行游戏内加载、跨账户 UAC 和人工拖拽验收。本机没有 Rise 安装目录；模拟测试不等同于游戏内效果。
 
-尚未完成游戏内加载、跨账户 UAC、人工拖拽交互验证；本机没有 Rise 安装。模拟目录测试与实际游戏效果分别记录。
+## 目录与维护
 
-## 维护
+artifacts 按 publish、package、tools、tmp、archive 分类。旧稳定构建和中间构建已归档并核对旧 EXE 哈希；publish/package 各保留最终构建，bin 指向当前 publish。原始画像与生成的界面缩略图均保存在源码 Assets 中。
 
-运行 `scripts/build-release.ps1` 打包，再由 `scripts/set-current-release.ps1` 更新启动入口。归档旧版前确认 bin 已指向新程序；保留当前 publish 目录。Mod 包、状态、事务日志和恢复备份仍存于 `%LOCALAPPDATA%\HunterModManager`，不参与构建目录清理。
+运行 `scripts/build-release.ps1` 打包并更新入口。性能复测使用 `scripts/measure-runtime.ps1`，报告放 `artifacts/tmp/performance`。Mod 数据仍保存在 `%LOCALAPPDATA%\HunterModManager`，不参与构建清理。早前被自动审批拒绝的预览 HTML 清理没有重试。
+
+本轮没有调用 Jev 或新建子代理；工具耗时在执行记录中，模型 usage 与实付费用 unknown。

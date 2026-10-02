@@ -2,11 +2,19 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\HunterModManager.Wpf\HunterModManager.Wpf.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\src\HunterModManager.Wpf\EmbeddedSevenZip.cs" Link="EmbeddedSevenZip.cs" />
+    <EmbeddedResource Include="Fixtures\tool.txt" LogicalName="HunterModManager.Tools.7z.exe" />
+    <EmbeddedResource Include="Fixtures\tool.txt" LogicalName="HunterModManager.Tools.7z.dll" />
+    <EmbeddedResource Include="Fixtures\tool.txt" LogicalName="HunterModManager.Tools.License.txt" />
+    <EmbeddedResource Include="Fixtures\tool.txt" LogicalName="HunterModManager.Tools.THIRD-PARTY-NOTICES.md" />
+  </ItemGroup>
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net10.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
   </PropertyGroup>
 </Project>

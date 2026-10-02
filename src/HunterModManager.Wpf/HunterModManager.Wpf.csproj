@@ -7,7 +7,7 @@
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml" />
     <Resource Include="Assets\daimao.ico" />
-    <Resource Include="Assets\*.png" />
+    <Resource Include="Assets\portraits\*.png" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(EmbedSevenZip)' == 'true'">
@@ -29,6 +29,7 @@
     <Title>呆猫mod manager</Title>
     <Product>呆猫mod manager</Product>
     <Description>怪物猎人 Mod 管理工具</Description>
+    <Version>0.1.1</Version>
   </PropertyGroup>
 
 </Project>

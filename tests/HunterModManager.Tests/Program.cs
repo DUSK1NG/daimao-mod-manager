@@ -265,6 +265,35 @@ try
         Check(File.ReadAllText(target) == "baseline", "停用替换 Mod 后应还原原始文件");
     });
 
+    await Run("冲突切换恢复旧包独有文件", async () =>
+    {
+        var sandbox = Path.Combine(root, "switch-exclusive");
+        var game = CreateGame(sandbox, GameId.World);
+        var existing = Path.Combine(game, "nativePC", "plugins", "existing.txt");
+        var added = Path.Combine(game, "nativePC", "plugins", "added.txt");
+        Directory.CreateDirectory(Path.GetDirectoryName(existing)!);
+        File.WriteAllText(existing, "original");
+        var archiveA = await CreateZipAsync(Path.Combine(sandbox, "a.zip"),
+            ("nativePC/plugins/shared.txt", "a"),
+            ("nativePC/plugins/existing.txt", "replaced"),
+            ("nativePC/plugins/added.txt", "added"));
+        var archiveB = await CreateZipAsync(Path.Combine(sandbox, "b.zip"),
+            ("nativePC/plugins/shared.txt", "b"));
+        var data = Path.Combine(sandbox, "data");
+        var manager = new ModManager(data, archiveService);
+        var a = await manager.ImportAsync(archiveA, GameId.World, game);
+        var b = await manager.ImportAsync(archiveB, GameId.World, game);
+        await manager.SetEnabledAsync(a.Id, true);
+        await manager.SetEnabledAsync(b.Id, true, switchConflicts: true);
+        Check(File.ReadAllText(existing) == "original", "旧包独有的覆盖文件应恢复");
+        Check(!File.Exists(added), "旧包独有的新增文件应撤回");
+        var restarted = new ModManager(data, archiveService);
+        Check(!restarted.Mods.Single(m => m.Id == a.Id).Enabled && restarted.Mods.Single(m => m.Id == b.Id).Enabled,
+            "切换结果应持久保存");
+        await restarted.SetEnabledAsync(b.Id, false);
+        Check(!File.Exists(Path.Combine(game, "nativePC", "plugins", "shared.txt")), "新包停用后应恢复基线");
+    });
+
     await Run("外部修改阻止停用覆盖", async () =>
     {
         var sandbox = Path.Combine(root, "external-change");

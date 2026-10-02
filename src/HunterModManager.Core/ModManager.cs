@@ -143,14 +143,17 @@ public sealed class ModManager
             if (enabled && !Prerequisites.RequirementsMet(mod)) throw new InvalidOperationException("所需前置环境尚未配置，请先打开“前置环境”");
             if (!enabled && mod.IsPrerequisite && state.Mods.Any(m => m.Enabled && !m.IsPrerequisite && m.Game == mod.Game && SamePath(m.GameRoot, mod.GameRoot) && Requires(m, mod.Prerequisite)))
                 throw new InvalidOperationException("仍有启用的 Mod 需要前置环境，请先停用它们");
-            if (Process.GetProcessesByName(Path.GetFileNameWithoutExtension(Games.Exe(mod.Game))).Length > 0)
-                throw new InvalidOperationException("请先关闭游戏，再启用或停用 Mod");
+            var gameProcesses = Process.GetProcessesByName(Path.GetFileNameWithoutExtension(Games.Exe(mod.Game)));
+            var gameRunning = gameProcesses.Length > 0;
+            foreach (var process in gameProcesses) process.Dispose();
+            if (gameRunning) throw new InvalidOperationException("请先关闭游戏，再启用或停用 Mod");
             ValidateTargets(mod, enabled);
+            var modTargets = mod.Files.ToDictionary(f => TargetPath(mod, f.Target), StringComparer.OrdinalIgnoreCase);
             var conflicts = enabled ? state.Mods.Where(m => m.Enabled && m.Game == mod.Game && SamePath(m.GameRoot, mod.GameRoot) &&
-                m.Files.Any(a => mod.Files.Any(b => a.Target.Equals(b.Target, StringComparison.OrdinalIgnoreCase)))).ToList() : [];
+                m.Files.Any(f => modTargets.ContainsKey(TargetPath(m, f.Target)))).ToList() : [];
             if (conflicts.Count > 0 && !switchConflicts) throw new InvalidOperationException("目标文件与已启用 Mod 冲突：" + string.Join("、", conflicts.Select(x => x.Name)));
             foreach (var conflict in conflicts) ValidateTargets(conflict, false);
-            var changed = conflicts.Append(mod).DistinctBy(m => m.Id).ToList();
+            var changed = conflicts.Append(mod).ToList();
             foreach (var old in changed.Where(x => x.Enabled)) CheckCurrentFiles(old);
             var targets = changed.SelectMany(x => x.Files.Select(f => TargetPath(x, f.Target))).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
             foreach (var path in targets)
@@ -191,16 +194,15 @@ public sealed class ModManager
                         var baseline = new BaselineRecord { Path = path, Existed = snapshot.Existed };
                         if (snapshot.Existed)
                         {
-                            baseline.Sha256 = ArchiveService.HashFile(path);
+                            baseline.Sha256 = snapshot.OriginalHash;
                             baseline.BackupPath = Path.Combine(dataRoot, "baselines", Guid.NewGuid().ToString("N") + ".bak");
                             Directory.CreateDirectory(Path.GetDirectoryName(baseline.BackupPath)!);
                             File.Copy(path, baseline.BackupPath);
                         }
                         state.Baselines.Add(baseline);
                     }
-                    if (enabled)
+                    if (enabled && modTargets.TryGetValue(path, out var file))
                     {
-                        var file = mod.Files.Single(f => SamePath(TargetPath(mod, f.Target), path));
                         snapshot.ExpectedHash = ArchiveService.HashFile(SafeJoin(staged[mod.Id], file.Source));
                     }
                     else

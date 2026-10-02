@@ -2,31 +2,29 @@
 
 ## 当前结果
 
-已交付“呆猫mod manager”，支持 Steam 版《世界》《崛起》《荒野》的标准文件型 Mod。设计见 `docs/superpowers/specs/2026-09-27-hunter-mod-manager-design.md`，目录约定见 `docs/directory-layout.md`。
+呆猫mod manager v0.1.1 已完成资源占用优化与本地验收。启动入口为 `bin/呆猫mod manager.exe`，联接目标为 `artifacts/publish/DaiMaoModManager-win-x64-20261002-123500/`；ZIP 在相同构建标识的 `artifacts/package` 中。
 
-当前启动入口为 `bin/呆猫mod manager.exe`，联接目标为 `artifacts/publish/DaiMaoModManager-win-x64-20260928-191731/`。分发文件位于同一构建标识对应的 `artifacts/package/` 子目录。公开 v0.1.0 附件未改写；本地重新打包验证新的目录结构。
+设计见 `docs/superpowers/specs/2026-09-27-hunter-mod-manager-design.md`，目录规则见 `docs/directory-layout.md`，测量方法、样本和验证边界见 `docs/performance.md`。
 
-GitHub：<https://github.com/DUSK1NG/daimao-mod-manager>；公开下载：<https://github.com/DUSK1NG/daimao-mod-manager/releases/latest>。
+## 改动与验证
 
-## 本次改动与验证
+- 三张界面画像在构建时生成 204 像素资源；保留原始素材。7-Zip 缓存通过流读写，主界面与核心复用 ArchiveService。
+- 冲突查询建立路径索引；普通启停取消重复 Reload，提权辅助进程完成后仍 Reload。合并重复异常处理、去重与哈希读取，操作记录限制为最近 200 条。
+- 修复冲突切换无法处理旧包独有文件的问题，恢复旧包覆盖文件并撤回旧包新增文件。
+- 23 项核心测试全部通过，包含真实 RAR 与多版本 ZIP。WPF 工具缓存、画像、四种布局、界面启停和冲突预览测试通过。
+- 本机三次重复启动的中位数：工作集 164.80 → 134.13 MiB，私有内存 136.42 → 87.75 MiB，累计 CPU 1750 → 1484 ms；窗口出现时间约 0.9 秒。首次运行新 EXE 单独测得 6.62 秒，不宣称首次启动加速。
+- 最终 ZIP 完整性和包内清单通过；真实 Mod 状态哈希未变，未写入真实游戏目录。
+- 旧稳定版与中间构建已移入 `artifacts/archive/releases`，旧稳定版 EXE 哈希核对通过。publish 和 package 各只保留最终构建。
 
-- 删除了 27 张旧截图及图标试稿。正式素材保存在 `src/HunterModManager.Wpf/Assets`，发布包内图标按完整包保留。
-- artifacts 现按 publish、package、tools、tmp、archive 分类；原目录已迁移，构建脚本和 WPF 嵌入组件路径已更新。
-- 根目录 bin 自动指向当前程序，上一份本地构建已归档。
-- 完整发布脚本运行成功。ZIP 完整性与包内 5 个文件哈希通过，bin 与实际 EXE 文件 ID 一致，程序启动和退出正常，实际 Mod 状态未变。
-- 清理残留预览 HTML 与空目录的命令被自动审批拒绝，仅返回 `blocked by policy`；它们保留在 tmp/icon-preview。
-
-2026-09-28 的功能基线为 22 项核心测试和四种尺寸 WPF 布局测试通过。本次构建目录改动未触及 Mod 安装逻辑，未重复运行功能基线。准确哈希见 PROJECT_STATUS.md。
-
-没有完成游戏内加载、跨账户 UAC 和人工拖拽交互验证。本机没有 Rise 安装。
+GitHub：<https://github.com/DUSK1NG/daimao-mod-manager>。公开 v0.1.0 附件保持原样；v0.1.1 的发布结果见 PROJECT_STATUS.md。
 
 ## 维护约束
 
-- 游戏原有文件按文件备份和恢复，不清空 nativePC 或 natives；外部修改时停止自动覆盖或删除。
-- 多版本包明确选择版本；PAK 和独立安装器不自动部署，不执行包内程序。
-- REFramework 从官方 GitHub 配置；Nexus 前置包由用户下载后导入。
-- Mod 数据仍保存在 `%LOCALAPPDATA%\HunterModManager`，构建或更新不得清理此目录。
-- 更新 bin 后再归档旧 publish；bin 是目录联接，删除当前实际程序会使入口失效。
-- 7-Zip 组件构建暂存于 tools/7zip，运行时仍释放至应用数据工具缓存；发布须保留许可和第三方说明。
+- 不清理 `%LOCALAPPDATA%\HunterModManager`；其中包含导入包、状态、事务和恢复备份。
+- 保留路径检查、外部修改检测、覆盖前备份、跨进程锁与事务恢复，不用删除安全边界换取代码行数。
+- 多版本包需选择版本；PAK 与独立安装器不自动部署，不执行包内程序。
+- REFramework 取官方组件；Nexus 前置由用户下载导入。游戏内效果、跨账户 UAC 和人工拖拽未验收，本机没有 Rise 安装。
+- 原始画像在 Assets；界面缩略图在 Assets/portraits，由 build-icon.ps1 生成并提交。bin 是联接，先更新入口再归档旧 publish。
+- 早前被自动审批拒绝的预览 HTML 清理未重试，仍留在 tmp/icon-preview。
 
-本次定位、目录迁移和验证由根任务使用确定性工具完成，未调用 Jev 或新建子代理。工具往返耗时见执行记录，上游模型 usage 与实付费用为 unknown。
+本轮由根任务使用本地工具完成，未调用 Jev 或新建子代理。各工具往返耗时见执行记录；上游模型 usage 与实付费用 unknown。
