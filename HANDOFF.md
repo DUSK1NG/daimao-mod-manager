@@ -16,7 +16,7 @@
 - 最终 ZIP 完整性和包内清单通过；真实 Mod 状态哈希未变，未写入真实游戏目录。
 - 旧稳定版与中间构建已移入 `artifacts/archive/releases`，旧稳定版 EXE 哈希核对通过。publish 和 package 各只保留最终构建。
 
-GitHub：<https://github.com/DUSK1NG/daimao-mod-manager>。公开 v0.1.0 附件保持原样；v0.1.1 的发布结果见 PROJECT_STATUS.md。
+GitHub：<https://github.com/DUSK1NG/daimao-mod-manager>。v0.1.1 已公开并设为 Latest，EXE、ZIP 与下载清单的服务端 SHA-256 已核对。v0.1.0 附件保留；详情见 PROJECT_STATUS.md。
 
 ## 维护约束
 
@@ -28,3 +28,4 @@ GitHub：<https://github.com/DUSK1NG/daimao-mod-manager>。公开 v0.1.0 附件�
 - 早前被自动审批拒绝的预览 HTML 清理未重试，仍留在 tmp/icon-preview。
 
 本轮由根任务使用本地工具完成，未调用 Jev 或新建子代理。各工具往返耗时见执行记录；上游模型 usage 与实付费用 unknown。
+

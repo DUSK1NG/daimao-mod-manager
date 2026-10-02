@@ -13,7 +13,7 @@
 - 分发目录：`artifacts/package/<构建标识>/`
 - EXE SHA-256：`764fa89a1e5d4338abf1f7ac23d53e36edccaebdd07179a05bda5fa7c2fdb577`
 - ZIP SHA-256：`bb169bf603e5d00e649766bde09f57186c2f02d95f6b931ec4b6209bc796a2bf`
-- 发布状态：本地验收完成，待上传 v0.1.1；公开 v0.1.0 附件保持原样。
+- 发布状态：v0.1.1 已公开并设为 Latest，三个下载附件的服务端 SHA-256 与本地一致。下载：<https://github.com/DUSK1NG/daimao-mod-manager/releases/tag/v0.1.1>。v0.1.0 附件保留。
 
 ## 优化结果
 
@@ -36,3 +36,4 @@ artifacts 按 publish、package、tools、tmp、archive 分类。旧稳定构建
 运行 `scripts/build-release.ps1` 打包并更新入口。性能复测使用 `scripts/measure-runtime.ps1`，报告放 `artifacts/tmp/performance`。Mod 数据仍保存在 `%LOCALAPPDATA%\HunterModManager`，不参与构建清理。早前被自动审批拒绝的预览 HTML 清理没有重试。
 
 本轮没有调用 Jev 或新建子代理；工具耗时在执行记录中，模型 usage 与实付费用 unknown。
+
